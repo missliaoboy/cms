@@ -33,10 +33,45 @@ function change_images(uploadid,returnid){
 	$.each( contents, function(i, n) {
 		var ids = parseInt(Math.random() * 10000 + 10*i); 
 		var filename = filenames[i].substr(0,filenames[i].indexOf('.'));
-		str += "<li id='image"+ids+"'><input type='text' name='"+returnid+"_url[]' value='"+n+"' style='width:310px;' ondblclick='image_priview(this.value);' class='input-text'> <input type='text' name='"+returnid+"_alt[]' value='"+filename+"' style='width:160px;' class='input-text' onfocus=\"if(this.value == this.defaultValue) this.value = ''\" onblur=\"if(this.value.replace(' ','') == '') this.value = this.defaultValue;\"> <a href=\"javascript:remove_div('image"+ids+"')\">移除</a> </li>";
+			str += "		<li id='image"+ids+"'>";
+			str += "			<input name='"+returnid+"_thumb[]'>";
+			str += "			<div class='picture'>";
+			str += "				<em><img src='"+n+"'></em>";
+			str += "				<input type='text' name='"+returnid+"_url[]' value='"+n+"' title='双击查看原图' ondblclick='image_priview(this.value);'>";
+			str += "			</div>";
+			str += "			<!-- 标题 -->";
+			str += "			<div class='group'>";
+			str += "				<div class='info'><span>标题：</span></div>";
+			str += "				<div class='select'>";
+			str += "					<input type='text' name='"+returnid+"_title[]' value='' placeholder='标题'> ";
+			str += "				</div>";
+			str += "			</div>";
+			str += "			<!-- ALT -->";
+			str += "			<div class='group'>";
+			str += "				<div class='info'><span>ALT：</span></div>";
+			str += "				<div class='select'>";
+			str += "					<input type='text' name='"+returnid+"_alt[]' value='' placeholder='ALT'> ";
+			str += "				</div>";
+			str += "			</div>";
+			str += "			<!-- URL -->";
+			str += "			<div class='group'>";
+			str += "				<div class='info'><span>跳转URL：</span></div>";
+			str += "				<div class='select'>";
+			str += "					<input type='text' name=''"+returnid+"_lurl[]'' value='' placeholder='跳转URL'> ";
+			str += "				</div>";
+			str += "			</div>";
+			str += "			<!-- 内容 -->";
+			str += "			<div class='group'>";
+			str += "				<div class='info'><span>内容：</span></div>";
+			str += "				<textarea name='"+returnid+"_intro[]'  value='' style='width: 462px;' placeholder='内容...'></textarea>";
+			str += "			</div>";
+			str += "			<a href=\"javascript:remove_div('image"+ids+"')\">移除</a>";
+			str += "		</li>";
 		});
-	
-	$('#'+returnid).html(str);
+	// $('#content_list_image>ul').append(str);
+	// $('#'+returnid).html(str);
+	$('#'+returnid).find('ul').append(str);
+
 }
 
 function change_videoes(uploadid, returnid) {
@@ -66,7 +101,60 @@ function change_videoes(uploadid, returnid) {
 	$('#key').val(video_num);
 	$('#'+returnid).html(str);
 }
+/*
+function change_multifile(uploadid,returnid){
+	var d = window.top.art.dialog({id:uploadid}).data.iframe;
+	var in_content = d.$("#att-status").html().substring(1);
+	var in_filename = d.$("#att-name").html().substring(1);
+	var str = '';
+	var contents = in_content.split('|');
+	var filenames = in_filename.split('|');
+	$('#'+returnid+'_tips').css('display','none');
+	if(contents=='') return true;
+	$.each( contents, function(i, n) {
+		var ids = parseInt(Math.random() * 10000 + 10*i); 
+		var filename = filenames[i].substr(0,filenames[i].indexOf('.'));
+		str += "		<li id='image"+ids+"'>";
+		str += "			<input name='"+returnid+"_thumb[]'>";
+		str += "			<div class='picture'>";
+		str += "				<em><img src='"+n+"'></em>";
+		str += "				<input type='text' name='"+returnid+"_url[]' value='"+n+"' ondblclick='image_priview(this.value);'>";
+		str += "			</div>";
+		str += "			<!-- 标题 -->";
+		str += "			<div class='group'>";
+		str += "				<div class='info'><span>标题：</span></div>";
+		str += "				<div class='select'>";
+		str += "					<input type='text' name='"+returnid+"_title[]' value='' placeholder='标题'> ";
+		str += "				</div>";
+		str += "			</div>";
+		str += "			<!-- ALT -->";
+		str += "			<div class='group'>";
+		str += "				<div class='info'><span>ALT：</span></div>";
+		str += "				<div class='select'>";
+		str += "					<input type='text' name='"+returnid+"_alt[]' value='' placeholder='ALT'> ";
+		str += "				</div>";
+		str += "			</div>";
+		str += "			<!-- URL -->";
+		str += "			<div class='group'>";
+		str += "				<div class='info'><span>跳转URL：</span></div>";
+		str += "				<div class='select'>";
+		str += "					<input type='text' name=''"+returnid+"_lurl[]'' value='' placeholder='跳转URL'> ";
+		str += "				</div>";
+		str += "			</div>";
+		str += "			<!-- 内容 -->";
+		str += "			<div class='group'>";
+		str += "				<div class='info'><span>内容：</span></div>";
+		str += "				<textarea name='"+returnid+"_intro[]'  value='' style='width: 462px;' placeholder='内容...'></textarea>";
+		str += "			</div>";
+		str += "			<a href=\"javascript:remove_div('image"+ids+"')\">移除</a>";
+		str += "		</li>";
+		//str += "<li id='multifile"+ids+"'><input type='text' name='"+returnid+"_fileurl[]' value='"+n+"' style='width:310px;' class='input-text'> <input type='text' name='"+returnid+"_filename[]' value='"+filename+"' style='width:160px;' class='input-text' onfocus=\"if(this.value == this.defaultValue) this.value = ''\" onblur=\"if(this.value.replace(' ','') == '') this.value = this.defaultValue;\"> <a href=\"javascript:remove_div('multifile"+ids+"')\">移除</a> </li>";
+		});
+	$('#'+returnid).find('ul').append(str);
+	// $('#content_list_image>ul').append(str);
 
+}
+*/
 function change_multifile(uploadid,returnid){
 	var d = window.top.art.dialog({id:uploadid}).data.iframe;
 	var in_content = d.$("#att-status").html().substring(1);

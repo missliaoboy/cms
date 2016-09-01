@@ -3,6 +3,87 @@ defined('IN_ADMIN') or exit('No permission resources.');
 include $this->admin_tpl('header','admin');?>
 <style type="text/css">
 html,body{ background:#e2e9ea}
+/* CSS Document */
+body,ul,ol,h1,h2,h3,h4,h5,dl,dd,form,input,textarea,select,p{padding: 0; margin: 0;font-family: Arial,"Microsoft Yahei",sans-serif;font-size: 14px;}
+input,textarea{margin:0;padding:0;border:none; outline:none;}
+textarea{ resize:none; overflow:auto;}
+em{ font-style:normal;}
+ul,li { list-style: none;}
+h1,h2,h3,h4,h5{margin:0; font-weight:normal;}
+a,input{-webkit-tap-highlight-color:rgba(255,0,0,0);text-decoration:blink;}
+img{ border:none; vertical-align:top;}
+
+/*清浮动*/
+.clearfix{*zoom:1;}
+.clearfix:after{content: "";display: block;clear: both;}
+
+.content_list_image{
+    width: 900px;
+    /*height: 600px;*/
+    margin: 50px auto;
+}
+.content_list_image ul li{
+    width: 876px;
+    padding: 10px 12px;
+    height: 250px;
+    float: left;
+}
+.content_list_image ul li:nth-child(odd){
+    background: #f8f8f8;
+}
+.content_list_image ul li:nth-child(even){
+    background: #fff;
+}
+.picture{
+    width: 234px;
+    margin-right: 30px;
+    float: left;
+}
+.picture em{
+    width: 234px;
+    height: 140px;
+    float: left;
+}
+.picture em img{
+    width: 100%;
+    height: 100%;
+}
+.picture input{
+    width: 232px;
+    height: 30px;
+    border: 1px solid #d2d2d2;
+    float: left;
+    margin-top: 4px;
+    text-indent: 8px;
+    color: #777;
+}
+.group{
+    width: 612px;
+    height: 32px;
+    line-height: 32px;
+    margin-bottom: 10px;
+    float: left;
+}
+.info{
+    width: 100px;
+    color: #777;
+    float: left;
+}
+.select input{
+    width: 455px;
+    height: 30px;
+    float: left;
+    text-indent: 6px;
+    border: 1px solid #d0d0d0;
+}
+.group textarea{
+    width: 555px;
+    height: 90px;
+    line-height: 20px;
+    float: left;
+    text-indent: 6px;
+    border: 1px solid #d0d0d0;
+}
 </style>
 <script type="text/javascript">
 <!--
