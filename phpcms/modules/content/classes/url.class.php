@@ -66,7 +66,7 @@ class url{
 			$month = date('m',$time);
 			$day = date('d',$time);
 			
-			$urls = str_replace(array('{$categorydir}','{$catdir}','{$year}','{$month}','{$day}','{$catid}','{$id}','{$page}'),array($categorydir,$catdir,$year,$month,$day,$catid,$id,$page),$urlrule);
+			$urls = str_replace(array('{$categorydir}','{$catdir}','{$year}','{$month}','{$day}','{$catid}','{$id}','{$prefix}','{$page}'),array($categorydir,$catdir,$year,$month,$day,$catid,$id,$prefix,$page),$urlrule);
 			$create_to_html_root = $category['create_to_html_root'];
 			
 			if($create_to_html_root || $category['sethtml']) {

@@ -114,7 +114,7 @@ class html {
 				}
 				for($i=1; $i<=$pagenumber; $i++) {
 					$upgrade = $upgrade ? '/'.ltrim($file,WEB_PATH) : '';
-					$pageurls[$i] = $this->url->show($id, $i, $catid, $data['inputtime'],'','','edit',$upgrade);
+					$pageurls[$i] = $this->url->show($id, $i, $catid, $data['inputtime'],$data['prefix'],'','edit',$upgrade);
 				}
 				$END_POS = strpos($content, '[/page]');
 				if($END_POS !== false) {

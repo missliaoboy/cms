@@ -457,7 +457,7 @@ class content extends admin {
 			foreach($_POST['ids'] as $id) {
 				$r = $this->db->get_one(array('id'=>$id));
 				if($content_ishtml && !$r['islink']) {
-					$urls = $this->url->show($id, 0, $r['catid'], $r['inputtime']);
+					$urls = $this->url->show($id, 0, $r['catid'], $r['inputtime'],$r['prefix']);
 					$fileurl = $urls[1];
 					if($this->siteid != 1) {
 						$sitelist = getcache('sitelist','commons');

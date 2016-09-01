@@ -286,7 +286,7 @@ class create_html extends admin {
 					if($r['upgrade']) {
 						$urls[1] = $r['url'];
 					} else {
-						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime']);
+						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime'],$r['prefix']);
 					}
 					$this->html->show($urls[1],$r,0,'edit',$r['upgrade']);
 				}
@@ -363,7 +363,7 @@ class create_html extends admin {
 					if($r['upgrade']) {
 						$urls[1] = $r['url'];
 					} else {
-						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime']);
+						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime'],$r['prefix']);
 					}
 					$this->html->show($urls[1],$r,0,'edit',$r['upgrade']);
 				}
@@ -532,7 +532,7 @@ class create_html extends admin {
 					if($r2) $r = array_merge($r,$r2);
 					//判断是否为升级或转换过来的数据
 					if(!$r['upgrade']) {
-						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime']);
+						$urls = $this->url->show($r['id'], '', $r['catid'],$r['inputtime'],$r['prefix']);
 					} else {
 						$urls[1] = $r['url'];
 					}
