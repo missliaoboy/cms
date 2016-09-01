@@ -150,49 +150,31 @@ class content_tag {
 	 * @param $data
 	 */
 	public function hits($data) {
-		$catid = intval($data['catid']);
-		if(!$this->set_modelid($catid)) return false;
-
-		$this->hits_db = pc_base::load_model('hits_model');
-		$sql = $desc = $ids = '';
-		$array = $ids_array = array();
-		$order = $data['order'];
-		$hitsid = 'c-'.$this->modelid.'-%';
-		$sql = "hitsid LIKE '$hitsid'";
-		if(isset($data['day'])) {
-			$updatetime = SYS_TIME-intval($data['day'])*86400;
-			$sql .= " AND updatetime>'$updatetime'";
-		}
-		if($this->category[$catid]['child']) {
-			$catids_str = $this->category[$catid]['arrchildid'];
-			$pos = strpos($catids_str,',')+1;
-			$catids_str = substr($catids_str, $pos);
-			$sql .= " AND catid IN ($catids_str)";
+		if(empty($data['siteid'])) return false; 
+		$siteid = intval($data['siteid']); 
+		$this->hits_db = pc_base::load_model('hits_model'); 
+		$category_content = getcache('category_content','commons'); 
+		$category = getcache('category_content_1','commons'); 
+		if(isset($data['catid']) && !empty($data['catid'])){
+			$catid = $data['catid'];
 		} else {
-			$sql .= " AND catid='$catid'";
+			$catid = ''; 
+			//获取站点下所有栏目ID 
+			foreach($category_content as $key=>$val){ 
+				if($val==$siteid){ 
+					$catid .= ','.$key; 
+				} 
+			} 
+			$catid 	= trim($catid,',');				
 		}
-		$hits = array();
-		$result = $this->hits_db->select($sql, '*', $data['limit'], $order);
-		foreach ($result as $r) {
-			$pos = strpos($r['hitsid'],'-',2) + 1;
-			$ids_array[] = $id = substr($r['hitsid'],$pos);
-			$hits[$id] = $r;
-		}
-		$ids = implode(',', $ids_array);
-		if($ids) {
-			$sql = "status=99 AND id IN ($ids)";
-		} else {
-			$sql = '';
-		}
-		$this->db->table_name = $this->tablename;
-		$result = $this->db->select($sql, '*', $data['limit'],'','','id');
-		foreach ($ids_array as $id) {
-			if($result[$id]['title']!='') {
-				$array[$id] = $result[$id];
-				$array[$id] = array_merge($array[$id], $hits[$id]);
-			}
-		}
-		return $array;
+		$arr 	= explode(',', $catid);
+		$model 	= getcache('model','commons');
+		$tablename 	= $model[$category[$arr['0']]['modelid']]['tablename'];
+		//获取点击排行 
+		$sql ='select n.* from '.$this->db->db_tablepre.'hits h left join '.$this->db->db_tablepre.$tablename . ' n on h.id = n.id where h.catid = n.catid and h.catid in('.$catid.') and n.status = 99 order by '.$data['order'].' limit '.$data['limit'];
+		$this->hits_db->query($sql);
+		$return = $this->hits_db->fetch_array();
+		return $return;
 	}
 	/**
 	 * 栏目标签
