@@ -22,7 +22,7 @@ include $this->admin_tpl('header','admin');?>
 			$.ajax({
 				url:"/index.php?m=content&c=content&a=pass&catid=<?php echo $catid; ?>&steps=1&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
 				type:'post',
-				data:{catid:"<?php echo $catid?>",ids:arr,'token':'<?php echo TOKEN_AJAX_TEMPLATE; ?>'},
+				data:{catid:"<?php echo $catid?>",ids:arr,'token':'<?php echo TOKEN_AJAX_TEMPLATE; ?>','site_type':1},
 				dataType:'json',
 				success:function(e)
 				{

@@ -171,7 +171,7 @@ class push_api {
 						$info['siteid'] = get_siteid();
 						$info['data'] = array2string($info['data']);
 						$info['expiration'] = $expiration;
-
+						$info['updatetime'] = time();
 						if ($r = $pos_data->get_one(array('id'=>$d['id'], 'posid'=>$pid, 'catid'=>$info['catid']))) {
 							if($r['synedit'] == '0') $pos_data->update($info, array('id'=>$d['id'], 'posid'=>$pid, 'catid'=>$info['catid']));
 						} else {
