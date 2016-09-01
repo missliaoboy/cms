@@ -816,6 +816,37 @@ class content extends admin {
 		}
 	}
 	public function public_getjson_ids() {
+		$model_cache = getcache('model','commons');
+		$modelid = intval($_GET['modelid']);
+		$id = intval($_GET['id']);
+		$this->db->set_model($modelid);
+		$tablename = $this->db->table_name;
+		$this->db->table_name = $tablename.'_data';
+		$r = $this->db->get_one(array('id'=>$id),'relation');
+		if($r['relation']) {
+			$relation 	= explode(',',$r['relation']);
+			$infos 	= array();
+			foreach ($relation as $key => $value) {
+				if(empty($value))continue;
+				$arr 	= explode('_',$value);
+				if(!empty($arr) && $arr[0] > 0 && $arr[1] > 0){
+					if(isset($model_cache[$arr[0]])){
+						$this->db->table_name 	= $this->db->db_tablepre.$model_cache[$arr[0]]['tablename'];
+						$data 	= $this->db->get_one(array('id'=>$arr[1]),'id,title,catid');
+						if(strtolower(CHARSET)=='gbk') $data['title'] = iconv('gbk', 'utf-8', $data['title']);
+						$data['modelid'] = intval($arr[0]);
+						$data['sid'] = $data['modelid'].'_'.$data['id'];
+						$infos[] = $data;
+					}
+				}
+			}
+			if(!empty($infos))
+			{
+				echo json_encode($infos);
+				exit;
+			}
+		}
+	/*
 		$modelid = intval($_GET['modelid']);
 		$id = intval($_GET['id']);
 		$this->db->set_model($modelid);
@@ -837,6 +868,7 @@ class content extends admin {
 			}
 			echo json_encode($infos);
 		}
+	*/
 	}
 
 	//文章预览

@@ -12,7 +12,12 @@ include $this->admin_tpl('header','admin');
     <tbody>
 		<tr>
 		<td align="center">
-		<div class="explain-col">
+			<div class="explain-col">
+				<select name="modelid">
+					<?php foreach($model_cache as $value) { ?>
+						<option value='<?php echo $value['modelid']; ?>' <?php if($modelid==$value['modelid']) echo 'selected';?>><?php echo $value['name'];?></option>
+					<?php } ?>
+				</select>
 				<select name="field">
 					<option value='title' <?php if($_GET['field']=='title') echo 'selected';?>><?php echo L('title');?></option>
 					<option value='keywords' <?php if($_GET['field']=='keywords') echo 'selected';?> ><?php echo L('keywords');?></option>
@@ -20,9 +25,9 @@ include $this->admin_tpl('header','admin');
 					<option value='id' <?php if($_GET['field']=='id') echo 'selected';?>>ID</option>
 				</select>
 				<?php echo form::select_category('',$catid,'name="catid"',L('please_select_category'),$modelid,0,1);?>
-				<input name="keywords" type="text" value="<?php echo stripslashes($_GET['keywords'])?>" style="width:330px;" class="input-text" />
+				<input name="keywords" type="text" value="<?php echo stripslashes($_GET['keywords'])?>" style="width:260px;" class="input-text" />
 				<input type="submit" name="dosubmit" class="button" value="<?php echo L('search');?>" />
-	</div>
+			</div>
 		</td>
 		</tr>
     </tbody>

@@ -163,14 +163,14 @@ function remove_relation(sid,id) {
 	var relation_ids = $('#relation').val();
 	if(relation_ids !='' ) {
 		$('#'+sid).remove();
-		var r_arr = relation_ids.split('|');
+		var r_arr = relation_ids.split(',');
 		var newrelation_ids = '';
 		$.each(r_arr, function(i, n){
-			if(n!=id) {
+			if(n!=sid) {
 				if(i==0) {
 					newrelation_ids = n;
 				} else {
-				 newrelation_ids = newrelation_ids+'|'+n;
+				 newrelation_ids = newrelation_ids+','+n;
 				}
 			}
 		});
