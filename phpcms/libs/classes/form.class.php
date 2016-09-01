@@ -16,71 +16,79 @@ class form {
 	public static function editor($textareaid = 'content', $toolbar = 'basic', $module = '', $catid = '', $color = '', $allowupload = 0, $allowbrowser = 1,$alowuploadexts = '',$height = 200,$disabled_page = 0, $allowuploadnum = '10') {
 		$str ='';
 		if(!defined('EDITOR_INIT')) {
-			$str = '<script type="text/javascript" src="'.JS_PATH.'ckeditor/ckeditor.js"></script>';
+			$str = '<script type="text/javascript" src="'.JS_PATH.'ueditor/ueditor.config.js"></script>';
+			$str .= '<script type="text/javascript" src="'.JS_PATH.'ueditor/ueditor.all.js"></script>';
+			$str .= '<link rel="stylesheet" href="'.JS_PATH.'ueditor/themes/default/css/ueditor.css"/>';
 			define('EDITOR_INIT', 1);
+			$str .= "<script type=\"text/javascript\">\r\n"; 
+			// $str .= "var editor = UE.getEditor('$textareaid');"; 
+			$str .= '</script>'; 
 		}
-		if($toolbar == 'basic') {
-			$toolbar = defined('IN_ADMIN') ? "['Source']," : '';
-			$toolbar .= "['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink' ],['Maximize'],\r\n";
-		} elseif($toolbar == 'full') {
-			if(defined('IN_ADMIN')) {
-				$toolbar = "['Source',";
-			} else {
-				$toolbar = '[';
-			}
-			$toolbar .= "'-','Templates'],
-		    ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print'],
-		    ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],['ShowBlocks'],['Image','Capture','Flash','flashplayer','MyVideo'],['Maximize'],
-		    '/',
-		    ['Bold','Italic','Underline','Strike','-'],
-		    ['Subscript','Superscript','-'],
-		    ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
-		    ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
-		    ['Link','Unlink','Anchor'],
-		    ['Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
-		    '/',
-		    ['Styles','Format','Font','FontSize'],
-		    ['TextColor','BGColor'],
-		    ['attachment'],\r\n";
-		} elseif($toolbar == 'desc') {
-			$toolbar = "['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink', '-', 'Image', '-','Source'],['Maximize'],\r\n";
-		} else {
-			$toolbar = '';
-		}
+		// if($toolbar == 'basic') {
+		// 	$toolbar = defined('IN_ADMIN') ? "['Source']," : '';
+		// 	$toolbar .= "['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink' ],['Maximize'],\r\n";
+		// } elseif($toolbar == 'full') {
+		// 	if(defined('IN_ADMIN')) {
+		// 		$toolbar = "['Source',";
+		// 	} else {
+		// 		$toolbar = '[';
+		// 	}
+		// 	$toolbar .= "'-','Templates'],
+		//     ['Cut','Copy','Paste','PasteText','PasteFromWord','-','Print'],
+		//     ['Undo','Redo','-','Find','Replace','-','SelectAll','RemoveFormat'],['ShowBlocks'],['Image','Capture','Flash','flashplayer','MyVideo'],['Maximize'],
+		//     '/',
+		//     ['Bold','Italic','Underline','Strike','-'],
+		//     ['Subscript','Superscript','-'],
+		//     ['NumberedList','BulletedList','-','Outdent','Indent','Blockquote'],
+		//     ['JustifyLeft','JustifyCenter','JustifyRight','JustifyBlock'],
+		//     ['Link','Unlink','Anchor'],
+		//     ['Table','HorizontalRule','Smiley','SpecialChar','PageBreak'],
+		//     '/',
+		//     ['Styles','Format','Font','FontSize'],
+		//     ['TextColor','BGColor'],
+		//     ['attachment'],\r\n";
+		// } elseif($toolbar == 'desc') {
+		// 	$toolbar = "['Bold', 'Italic', '-', 'NumberedList', 'BulletedList', '-', 'Link', 'Unlink', '-', 'Image', '-','Source'],['Maximize'],\r\n";
+		// } else {
+		// 	$toolbar = '';
+		// }
 		$str .= "<script type=\"text/javascript\">\r\n";
-		$str .= "CKEDITOR.replace( '$textareaid',{";
-		$str .= "height:{$height},";
-	
-		$show_page = ($module == 'content' && !$disabled_page) ? 'true' : 'false';
-		$str .="pages:$show_page,subtitle:$show_page,textareaid:'".$textareaid."',module:'".$module."',catid:'".$catid."',\r\n";
-		if($allowupload) {
-			$authkey = upload_key("$allowuploadnum,$alowuploadexts,$allowbrowser");
-			$str .="flashupload:true,alowuploadexts:'".$alowuploadexts."',allowbrowser:'".$allowbrowser."',allowuploadnum:'".$allowuploadnum."',authkey:'".$authkey."',\r\n";
-		}
-        if($allowupload) $str .= "filebrowserUploadUrl : 'index.php?m=attachment&c=attachments&a=upload&module=".$module."&catid=".$catid."&dosubmit=1',\r\n";
-		if($color) {
-			$str .= "extraPlugins : 'uicolor',uiColor: '$color',";
-		}
-		$str .= "toolbar :\r\n";
-		$str .= "[\r\n";
-		$str .= $toolbar;
-		$str .= "]\r\n";
-		//$str .= "fullPage : true";
-		$str .= "});\r\n";
+
+			$str .= "var $textareaid = UE.getEditor('$textareaid');"; 
+		
+		// $str .= "CKEDITOR.replace( '$textareaid',{";
+		// $str .= "height:{$height},";
+	// var editor = UE.getEditor('$textareaid');
+		// $show_page = ($module == 'content' && !$disabled_page) ? 'true' : 'false';
+		// $str .="pages:$show_page,subtitle:$show_page,textareaid:'".$textareaid."',module:'".$module."',catid:'".$catid."',\r\n";
+		// if($allowupload) {
+		// 	$authkey = upload_key("$allowuploadnum,$alowuploadexts,$allowbrowser");
+		// 	$str .="flashupload:true,alowuploadexts:'".$alowuploadexts."',allowbrowser:'".$allowbrowser."',allowuploadnum:'".$allowuploadnum."',authkey:'".$authkey."',\r\n";
+		// }
+  //       if($allowupload) $str .= "filebrowserUploadUrl : 'index.php?m=attachment&c=attachments&a=upload&module=".$module."&catid=".$catid."&dosubmit=1',\r\n";
+		// if($color) {
+		// 	$str .= "extraPlugins : 'uicolor',uiColor: '$color',";
+		// }
+		// $str .= "toolbar :\r\n";
+		// $str .= "[\r\n";
+		// $str .= $toolbar;
+		// $str .= "]\r\n";
+		// //$str .= "fullPage : true";
+		// $str .= "});\r\n";
 		$str .= '</script>';
-		$ext_str = "<div class='editor_bottom'>";
-		if(!defined('IMAGES_INIT')) {
-			$ext_str .= '<script type="text/javascript" src="'.JS_PATH.'swfupload/swf2ckeditor.js"></script>';
-			define('IMAGES_INIT', 1);
-		}
-		$ext_str .= "<div id='page_title_div'>
-		<table cellpadding='0' cellspacing='1' border='0'><tr><td class='title'>".L('subtitle')."<span id='msg_page_title_value'></span></td><td>
-		<a class='close' href='javascript:;' onclick='javascript:$(\"#page_title_div\").hide();'><span>×</span></a></td>
-		<tr><td colspan='2'><input name='page_title_value' id='page_title_value' class='input-text' value='' size='30'>&nbsp;<input type='button' class='button' value='".L('submit')."' onclick=insert_page_title(\"$textareaid\",1)></td></tr>
-		</table></div>";
-		$ext_str .= "</div>";
-		if(is_ie()) $ext_str .= "<div style='display:none'><OBJECT id='PC_Capture' classid='clsid:021E8C6F-52D4-42F2-9B36-BCFBAD3A0DE4'><PARAM NAME='_Version' VALUE='0'><PARAM NAME='_ExtentX' VALUE='0'><PARAM NAME='_ExtentY' VALUE='0'><PARAM NAME='_StockProps' VALUE='0'></OBJECT></div>";
-		$str .= $ext_str;
+		// $ext_str = "<div class='editor_bottom'>";
+		// if(!defined('IMAGES_INIT')) {
+		// 	$ext_str .= '<script type="text/javascript" src="'.JS_PATH.'swfupload/swf2ckeditor.js"></script>';
+		// 	define('IMAGES_INIT', 1);
+		// }
+		// $ext_str .= "<div id='page_title_div'>
+		// <table cellpadding='0' cellspacing='1' border='0'><tr><td class='title'>".L('subtitle')."<span id='msg_page_title_value'></span></td><td>
+		// <a class='close' href='javascript:;' onclick='javascript:$(\"#page_title_div\").hide();'><span>×</span></a></td>
+		// <tr><td colspan='2'><input name='page_title_value' id='page_title_value' class='input-text' value='' size='30'>&nbsp;<input type='button' class='button' value='".L('submit')."' title='wocao' onclick=insert_page_title(\"$textareaid\",1)></td></tr>
+		// </table></div>";
+		// $ext_str .= "</div>";
+		// if(is_ie()) $ext_str .= "<div style='display:none'><OBJECT id='PC_Capture' classid='clsid:021E8C6F-52D4-42F2-9B36-BCFBAD3A0DE4'><PARAM NAME='_Version' VALUE='0'><PARAM NAME='_ExtentX' VALUE='0'><PARAM NAME='_ExtentY' VALUE='0'><PARAM NAME='_StockProps' VALUE='0'></OBJECT></div>";
+		// $str .= $ext_str;
 		return $str;
 	}
 	
@@ -111,6 +119,30 @@ class form {
 		$value = new_html_special_chars($value);
 		$authkey = upload_key("1,$alowexts,1,$thumb_ext,$watermark_setting");
 		return $str."<input type=\"text\" name=\"$name\" id=\"$id\" value=\"$value\" size=\"$size\" class=\"$class\" $ext/>  <input type=\"button\" class=\"button\" onclick=\"javascript:flashupload('{$id}_images', '".L('attachmentupload')."','{$id}',submit_images,'1,{$alowexts},1,{$thumb_ext},{$watermark_setting}','{$moudle}','{$catid}','{$authkey}')\"/ value=\"".L('imagesupload')."\">";
+	}
+
+	/**
+	 * [添加相关功能返回HTML]
+	 * @param  string $file           [description]
+	 * @param  string $str            [description]
+	 * @param  string $default_option [description]
+	 * @param  [type] $modelid        [description]
+	 * @return [type]                 [description]
+	 */
+	public static function select_model($file = 'model',$str='',$default_option='',$modelid){
+
+		/*if (!$file) {
+			$file = 'category_content_'.$siteid;
+		}*/
+		$result = getcache($file,'commons');
+		$string = '<select onchange="modelChange(this)" '.$str.'>';
+		if($default_option) $string .= "<option value='0'>$default_option</option>";
+		foreach($result as $rKey=>$rVal){
+			$selected = ($rVal['modelid'] == $modelid) ? 'selected' : '';
+			$string .= '<option '.$selected.' value="'.$rVal['modelid'].'">'.$rVal['name'].'</option>';
+		}	
+		$string .= '</select>';
+		return $string;	
 	}
 
 	/**
