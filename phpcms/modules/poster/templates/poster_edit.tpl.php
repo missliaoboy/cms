@@ -3,8 +3,7 @@ defined('IN_ADMIN') or exit('No permission resources.');
 //$show_header = $show_validator = $show_scroll = 1; 
 $show_dialog = $show_header = 1; 
 include $this->admin_tpl('header', 'admin');
-$thisExt = isset($this->M['ext'])?$this->M['ext']:'';
-$authkey = upload_key('1,'.$thisExt.',1');
+$authkey = upload_key('1,'.$this->M['ext'].',1');
 ?> 
 <script language="javascript" type="text/javascript" src="<?php echo JS_PATH;?>formvalidator.js" charset="UTF-8"></script>
 <script language="javascript" type="text/javascript" src="<?php echo JS_PATH;?>formvalidatorregex.js" charset="UTF-8"></script>
@@ -49,7 +48,7 @@ $authkey = upload_key('1,'.$thisExt.',1');
   <tr>
     <th width="80"><?php echo L('linkurl')?>：</th>
     <td class="y-bg"><input type="text" class="input-text" name="setting[images][<?php echo $i;?>][linkurl]" id="linkurl<?php echo $i;?>" size="30" value="<?php echo $info['setting'][$i]['linkurl']?>" /></td>
-    <td rowspan="2"><a href="javascript:flashupload('imgurl<?php echo $i;?>_images', '<?php echo L('upload_photo')?>','imgurl<?php echo $i;?>',preview,'1,<?php echo $thisExt?>,1','poster', '', '<?php echo $authkey?>');void(0);"><img src="<?php echo $info['setting'][$i]['imageurl']?>" id="imgurl<?php echo $i;?>_s" width="105" height="88" onerror="this.src='<?php echo IMG_PATH;?>nopic.gif'"></a><input type="hidden" id="imgurl<?php echo $i;?>" name="setting[images][<?php echo $i;?>][imageurl]" value="<?php echo $info['setting'][$i]['imageurl']?>"></td>
+    <td rowspan="2"><a href="javascript:flashupload('imgurl<?php echo $i;?>_images', '<?php echo L('upload_photo')?>','imgurl<?php echo $i;?>',preview,'1,<?php echo $this->M['ext']?>,1','poster', '', '<?php echo $authkey?>');void(0);"><img src="<?php echo $info['setting'][$i]['imageurl']?>" id="imgurl<?php echo $i;?>_s" width="105" height="88" onerror="this.src='<?php echo IMG_PATH;?>nopic.gif'"></a><input type="hidden" id="imgurl<?php echo $i;?>" name="setting[images][<?php echo $i;?>][imageurl]" value="<?php echo $info['setting'][$i]['imageurl']?>"></td>
   </tr>
   <tr>
     <th><?php echo L('alt')?>：</th>
@@ -62,7 +61,7 @@ $authkey = upload_key('1,'.$thisExt.',1');
   <tr>
     <th width="80"><?php echo L('linkurl')?>：</th>
     <td class="y-bg"><input type="text" class="input-text" name="setting[images][1][linkurl]" id="linkurl3" size="30" value="<?php echo $info['setting'][1]['linkurl']?>" /></td>
-    <td rowspan="2"><a href="javascript:flashupload('imgurl_images', '<?php echo L('upload_photo')?>','imgurl',preview,'1,<?php echo $thisExt?>,1','poster', '', '<?php echo $authkey?>');void(0);"><img src="<?php echo $info['setting'][1]['imageurl']?>" id="imgurl_s" width="105" height="88" onerror="this.src='<?php echo IMG_PATH;?>nopic.gif'"></a><input type="hidden" id="imgurl" name="setting[images][1][imageurl]" value="<?php echo $info['setting'][1]['imageurl']?>"></td>
+    <td rowspan="2"><a href="javascript:flashupload('imgurl_images', '<?php echo L('upload_photo')?>','imgurl',preview,'1,<?php echo $this->M['ext']?>,1','poster', '', '<?php echo $authkey?>');void(0);"><img src="<?php echo $info['setting'][1]['imageurl']?>" id="imgurl_s" width="105" height="88" onerror="this.src='<?php echo IMG_PATH;?>nopic.gif'"></a><input type="hidden" id="imgurl" name="setting[images][1][imageurl]" value="<?php echo $info['setting'][1]['imageurl']?>"></td>
   </tr>
   <tr>
     <th><?php echo L('alt')?>：</th>
@@ -81,7 +80,7 @@ $authkey = upload_key('1,'.$thisExt.',1');
   <tr>
     <th width="80"><?php echo L('flash_url')?>：</th>
     <td class="y-bg"><input type="text" class="input-text" name="setting[flash][<?php echo $i;?>][flashurl]" value="<?php echo $info['setting'][$i]['flashurl']?>" id="flashurl<?php echo $i;?>" size="40" /></td>
-    <td class="y-bg"><input type="button" class="button" onclick="javascript:flashupload('flashurl<?php echo $i;?>_images', '<?php echo L('flash_upload')?>','flashurl<?php echo $i;?>',submit_attachment,'1,<?php echo $thisExt?>,1','poster', '', '<?php echo $authkey?>')" value="<?php echo L('flash_upload')?>"></td>
+    <td class="y-bg"><input type="button" class="button" onclick="javascript:flashupload('flashurl<?php echo $i;?>_images', '<?php echo L('flash_upload')?>','flashurl<?php echo $i;?>',submit_attachment,'1,<?php echo $this->M['ext']?>,1','poster', '', '<?php echo $authkey?>')" value="<?php echo L('flash_upload')?>"></td>
   </tr>
   </tbody>
 </table>
@@ -91,7 +90,7 @@ $authkey = upload_key('1,'.$thisExt.',1');
   <tr>
     <th width="80"><?php echo L('flash_url')?>：</th>
     <td class="y-bg"><input type="text" class="input-text" name="setting[flash][1][flashurl]" id="flashurl" size="40" value="<?php echo $info['setting'][1]['flashurl']?>" /></td>
-    <td class="y-bg"><input type="button" class="button" onclick="javascript:flashupload('flashurl_images', '<?php echo L('flash_upload')?>','flashurl',submit_attachment,'1,<?php echo $thisExt?>,1','poster', '', '<?php echo $authkey?>')" value="<?php echo L('flash_upload')?>"></td>
+    <td class="y-bg"><input type="button" class="button" onclick="javascript:flashupload('flashurl_images', '<?php echo L('flash_upload')?>','flashurl',submit_attachment,'1,<?php echo $this->M['ext']?>,1','poster', '', '<?php echo $authkey?>')" value="<?php echo L('flash_upload')?>"></td>
   </tr>
   </tbody>
 </table>
@@ -104,7 +103,7 @@ $authkey = upload_key('1,'.$thisExt.',1');
 	<?php if($sinfo['type']=='code') {?>
   <tr>
     <th width="80"><?php echo L('code_content')?>：</th>
-    <td class="y-bg"><textarea name="setting[text][code]" id="code" cols="55" rows="6"><?php echo $info['setting']['code']?></textarea></td>
+    <td class="y-bg"><textarea name="setting[text][code]" id="code" cols="55" rows="6"><?php echo $info['setting']['content']?></textarea></td>
   </tr>
   <?php } else {?>
   <tr>

@@ -44,15 +44,14 @@ class poster extends admin {
 			if ($id) {
 				$this->s_db->update(array('items'=>'+=1'), array('spaceid'=>$poster['spaceid'], 'siteid'=>$this->get_siteid()));
 				$this->create_js($poster['spaceid']);
-				if(is_array($setting['images'])) {
-					foreach ($setting['images'] as $im) {
-						$imgs[] = $im['imageurl'];
-					}
+				foreach ($setting['images'] as $im) {
+				$imgs[] = $im['imageurl'];
 				}
 				if (pc_base::load_config('system','attachment_stat')) {
 					$this->attachment_db = pc_base::load_model('attachment_model');
 					$this->attachment_db->api_update($imgs, 'poster-'.$id, 1);
 				}
+				$this->user_create_js($id);
 				showmessage(L('add_ads_success'), 'index.php?m=poster&c=space&a=init');
 			} else {
 				showmessage(L('operation_failure'), 'index.php?m=poster&c=space&a=init');
@@ -88,6 +87,7 @@ class poster extends admin {
 				$this->attachment_db = pc_base::load_model('attachment_model');
 				$this->attachment_db->api_update($imgs, 'poster-'.$_GET['id'], 1);
 			}
+			$this->user_create_js($_GET['id']);
 			showmessage(L('edit_ads_success'), 'index.php?m=poster&c=poster&a=init&spaceid='.$_GET['spaceid']);
 		} else {
 			
@@ -378,5 +378,23 @@ class poster extends admin {
 			exit('1');
 		}
 	}
+
+	/**
+	 * @info 创建js
+	 * @user xiong
+	 * @time 2016/03/03
+	 */
+	public function user_create_js($id)
+	{
+		$arr = $this->db->get_one(array('id'=>$id));
+		$arr2 = string2array($arr['setting']);
+		if($arr['type'] != 'text' || empty($arr['setting']) )return false;
+		$file 		= 'statics/statics/js/code_'.$id.'.js';
+		file_put_contents(PHPCMS_PATH.$file, $arr2['code']);
+		$arr2['content'] = $arr2['code'];
+		$arr2['code'] = "<script src=\"".addslashes('/'.$file)."\"></script>";
+		$this->db->update(array('setting'=>array2string($arr2)),array('id'=>$id));
+	}
+
 }
 ?>
