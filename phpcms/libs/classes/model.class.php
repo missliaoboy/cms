@@ -21,6 +21,8 @@ class model {
 	//表前缀
 	public  $db_tablepre = '';
 	
+ 	public     $db_pages = 0; //分頁模型
+
 	public function __construct() {
 		if (!isset($this->db_config[$this->db_setting])) {
 			$this->db_setting = 'default';
@@ -54,49 +56,22 @@ class model {
 	 * @return unknown_type
 	 */
 	final public function listinfo($where = '', $order = '', $page = 1, $pagesize = 20, $key='', $setpages = 10,$urlrule = '',$array = array(), $data = '*') {
-		$where = to_sqls($where);
-		$this->number = $this->count($where);
-		$page = max(intval($page), 1);
-		$offset = $pagesize*($page-1);
-		$this->pages = pages($this->number, $page, $pagesize, $urlrule, $array, $setpages);
-		$array = array();
-		if ($this->number > 0) {
-			return $this->select($where, $data, "$offset, $pagesize", $order, '', $key);
-		} else {
-			return array();
-		}
-	}
-
-	/**
-	 * 点击量数据查询并分页
-	 * @param $where
-	 * @param $order
-	 * @param $page
-	 * @param $pagesize
-	 * @return unknown_type
-	 */
-	final public function listinfo2($where = '', $order = '', $page = 1, $pagesize = 20, $key='', $setpages = 10,$urlrule = '',$array = array(), $data = '*') {
-		$where = to_sqls($where);
-		$this->number = $this->count($where);
-		$where = strtolower($where);
-		$arr = explode('and', $where);
-		foreach ($arr as $key => $value) {
-			$arr[$key] = " n.".trim($value);
-		}
-		$where = implode(' and ', $arr);
-				$page = max(intval($page), 1);
-		$offset = $pagesize*($page-1);
-		$sql = 'SELECT n.*,h.views FROM '.$this->table_name.' n left join '.$this->db_tablepre.'hits h on n.id=h.id where h.catid=n.catid and '.$where.' order by '.$order.' limit '.$offset.",".$pagesize;
-		$result 	= $this->query($sql);
-		$this->pages = pages($this->number, $page, $pagesize, $urlrule, $array, $setpages);
-		return $this->fetch_array();
-		// $array = array();
-		// if ($this->number > 0) {
-		// 	return $this->select($where, $data, "$offset, $pagesize", $order, '', $key);
-		// } else {
-		// 	return array();
-		// }
-	}
+        $where = to_sqls($where);
+        $this->number = $this->count($where);
+        $page = max(intval($page), 1);
+        $offset = $pagesize*($page-1);//new_pages
+        if($this->db_pages == 0){
+            $this->pages = pages($this->number, $page, $pagesize, $urlrule, $array, $setpages);
+        } else {
+            $this->pages = new_pages($this->number, $page, $pagesize, $urlrule, $array, $setpages);
+        }
+        $array = array();
+        if ($this->number > 0) {
+            return $this->select($where, $data, "$offset, $pagesize", $order, '', $key);
+        } else {
+            return array();
+        }
+    }
 
 	/**
 	 * 获取单条记录查询
