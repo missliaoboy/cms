@@ -373,5 +373,11 @@ class index {
 			}
 		}
 	}
+
+	public function baidu_sitemap(){
+		$url = $_GET['url'];
+		$baidu_sitemap_model = pc_base::load_model('baidu_sitemap_model');
+		$baidu_sitemap_model->start(array($url));
+	}
 }
 ?>

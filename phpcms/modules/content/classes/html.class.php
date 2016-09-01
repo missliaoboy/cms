@@ -169,8 +169,22 @@ class html {
 		$file = PHPCMS_PATH.$file;
 		ob_start();
 		include template('content', $template);
+		if(BAIDU_SITEMAP_TYPE == 1){
+			$this->baidu_sitemap($file_url);
+		}
 		return $this->createhtml($file);
 	}
+
+	function baidu_sitemap($url) {
+		$hosts 		= parse_url(APP_PATH);
+		$url2 = "http://".$hosts['host']."/index.php?m=content&c=index&a=baidu_sitemap&url=".$url;
+		$cl = curl_init();
+		curl_setopt($cl, CURLOPT_URL, $url2);
+		curl_setopt($cl, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($cl, CURLOPT_TIMEOUT, 1);
+		curl_exec($cl);
+		curl_close($cl); 
+	} 
 
 	/**
 	 * 生成栏目列表
