@@ -1860,4 +1860,43 @@ function get_vid($contentid = 0, $catid = 0, $isspecial = 0) {
 	}
 
  } 
+
+ //	日志
+function log_content($log,$type=1,$file='')
+{
+	$log = $log . '    ' . date("Y-m-d H:i:s",time()). "\r\n";
+   	// $file = PHPCMS_PATH.'caches'.DIRECTORY_SEPARATOR.'cache_toutiao'.DIRECTORY_SEPARATOR.'logs.log';
+   	$file = empty($file) ? PHPCMS_PATH.'log.log' : $file;
+    if(!is_file($file)){
+    	mkdir(dirname($file),0755);
+    }
+    if (($fp = @fopen($file, 'a')) === false) {
+        throw new InvalidConfigException("日志打开错误");
+    }
+    @flock($fp, LOCK_EX);
+    clearstatcache();
+    if (@filesize($file) > 4 * 1024 * 1024) {
+        @flock($fp, LOCK_UN);
+        @fclose($fp);
+        @file_put_contents($file, $log, FILE_APPEND | LOCK_EX);
+    } else {
+        @fwrite($fp, $log);
+        @flock($fp, LOCK_UN);
+        @fclose($fp);
+    }
+}
+
+//获取正确的url地址
+function getrealurl($url){ 
+    $header = get_headers($url,1); 
+    if (strpos($header[0],'301') || strpos($header[0],'302')) 
+    { 
+            if(is_array($header['Location'])) { return $header['Location'][count($header['Location'])-1]; 
+        }else{
+             return $header['Location']; 
+        } 
+    }else { 
+        return $url; 
+    } 
+}
 ?>

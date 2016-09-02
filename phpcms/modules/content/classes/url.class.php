@@ -65,8 +65,11 @@ class url{
 			$year = date('Y',$time);
 			$month = date('m',$time);
 			$day = date('d',$time);
-			
-			$urls = str_replace(array('{$categorydir}','{$catdir}','{$year}','{$month}','{$day}','{$catid}','{$id}','{$prefix}','{$page}'),array($categorydir,$catdir,$year,$month,$day,$catid,$id,$prefix,$page),$urlrule);
+			$new_id 	= $id;
+			if(!empty($prefix) || isset($data['prefix']) && !empty($data['prefix'])){
+				$new_id = empty($prefix) ? $data['prefix'] : $prefix;
+			}
+			$urls = str_replace(array('{$categorydir}','{$catdir}','{$year}','{$month}','{$day}','{$catid}','{$id}','{$prefix}','{$page}'),array($categorydir,$catdir,$year,$month,$day,$catid,$new_id,$prefix,$page),$urlrule);
 			$create_to_html_root = $category['create_to_html_root'];
 			
 			if($create_to_html_root || $category['sethtml']) {

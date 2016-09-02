@@ -131,6 +131,12 @@ class content extends admin {
 			$setting = string2array($model_fields['thumb']['setting']);
 			$args = '1,'.$setting['upload_allowext'].','.$setting['isselectimage'].','.$setting['images_width'].','.$setting['images_height'].','.$setting['watermark'];
 			$authkey = upload_key($args);
+			$this->db->table_name 	= $this->db->db_tablepre . 'admin';
+			$user_admin 	= $this->db->select('','username,userid');
+			$admin_user 	= array();
+			foreach ($user_admin as $key => $value) {
+				$admin_user[$value['userid']] = $value;
+			}
 			$template = $MODEL['admin_list_template'] ? $MODEL['admin_list_template'] : 'content_list';
 			include $this->admin_tpl($template);
 		} else {
@@ -299,7 +305,8 @@ class content extends admin {
 				} else {
 					$_POST['info']['status'] = 99;
 				}
-				$this->db->add_content($_POST['info']);
+				$id = $this->db->add_content($_POST['info']);
+				$this->admin_log('新增',$id);
 				if(isset($_POST['dosubmit'])) {
 					showmessage(L('add_success').L('2s_close'),'blank','','','function set_time() {$("#secondid").html(1);}setTimeout("set_time()", 500);setTimeout("window.close()", 1200);');
 				} else {
@@ -318,6 +325,7 @@ class content extends admin {
 				}
 				$this->page_db->create_html($catid,$_POST['info']);
 				$forward = HTTP_REFERER;
+				$this->admin_log('新增');
 			}
 			showmessage(L('add_success'),$forward);
 		} else {
@@ -382,6 +390,7 @@ class content extends admin {
 				$modelid = $this->categorys[$catid]['modelid'];
 				$this->db->set_model($modelid);
 				$this->db->edit_content($_POST['info'],$id);
+				$this->admin_log('修改',$id);
 				if(isset($_POST['dosubmit'])) {
 					showmessage(L('update_success').L('2s_close'),'blank','','','function set_time() {$("#secondid").html(1);}setTimeout("set_time()", 500);setTimeout("window.close()", 1200);');
 				} else {
@@ -502,7 +511,7 @@ class content extends admin {
 					$commentid = id_encode('content_'.$catid, $id, $siteid);
 					$this->comment->del($commentid, $siteid, $id, $catid);
 				}
-				
+				$this->admin_log('删除',$id);
  			}
 			//更新栏目统计
 			$this->db->cache_items();
@@ -556,6 +565,7 @@ class content extends admin {
 				$modelid = $this->categorys[$catid]['modelid'];
 				$this->db->set_model($modelid);
 				$this->db->search_db = pc_base::load_model('search_model');
+				$return 	= array();
 				//审核通过，检查投稿奖励或扣除积分
 				if ($status==99) {
 					$html = pc_base::load_app_class('html', 'content');
@@ -579,8 +589,12 @@ class content extends admin {
 								spend::point($setting['presentpoint'], L('contribute_del_point'), $memberinfo['userid'], $memberinfo['username'], '', '', $flag);
 							}
 							if($setting['content_ishtml'] == '1'){//栏目有静态配置
-  								$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'], '',$content_info,'add');
+								$return['title'] 	= $content_info['title'];
+  								$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'],$content_info['prefix'],$content_info,'add');
+  								$return['url'] 		= $urls[0];
    								$html->show($urls[1],$urls['data'],0);
+   								$this->db->set_model($modelid);
+   								$newsRes = $this->db->update(array('updatetime'=>time()),array("id"=>$id));
  							}
 							//更新到全站搜索
 							$inputinfo = '';
@@ -601,8 +615,12 @@ class content extends admin {
 						}
 						//单篇审核，生成静态
 						if($setting['content_ishtml'] == '1'){//栏目有静态配置
-						$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'], '',$content_info,'add');
-						$html->show($urls[1],$urls['data'],0);
+							$return['title'] 	= $content_info['title'];
+							$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'], $content_info['prefix'],$content_info,'add');
+  							$return['url'] 		= $urls[0];
+							$html->show($urls[1],$urls['data'],0);
+							$this->db->set_model($modelid);
+	   						$newsRes = $this->db->update(array('updatetime'=>time()),array("id"=>$id));
 						}
 						//更新到全站搜索
 						$inputinfo = '';
@@ -613,12 +631,33 @@ class content extends admin {
 				if(isset($_GET['ajax_preview'])) {
 					$_POST['ids'] = $_GET['id'];
 				}
+				foreach ($_POST['ids'] as $id) {
+					if($steps > 0){
+						$this->admin_log($steps.'审审核通过',$id);
+						//审核通过人员记录
+						$user_check 	= $r['user_check'];
+						if(empty($user_check)){
+							$str_check = array();
+							$str_check[$steps] = $_SESSION['userid'];
+							$user_check 	= array2string($str_check);
+						} else {
+							$str_check = string2array($user_check);
+							$str_check[$steps] = $_SESSION['userid'];
+							$user_check = array2string($str_check);
+						}
+						$this->db->set_model($modelid);
+						$this->db->update(array('user_check'=>$user_check),array('id'=>$id));						
+					} else {
+						$this->admin_log('退稿',$id);
+					}
+				}
 				$this->db->status($_POST['ids'],$status);
 		}
 		if(!isset($_POST['site_type']) || $_POST['site_type'] != 1){
 			showmessage(L('operation_success'),HTTP_REFERER);
 		} else {
-			exit(json_encode(array('type'=>'success')));
+			$return['type'] = 'success';
+			exit(json_encode($return));
 		}
 	}
 	/**
@@ -716,7 +755,7 @@ class content extends admin {
 						$strs2 = "<span class='folder'><a href='\$model_url'  target='right'>\$catname</a></span>";
 						break;
 				}
-			$categorys = $tree->get_treeview(0,'category_tree',$strs,$strs2,$ajax_show);
+			$categorys = $tree->get_treeview2(0,'category_tree',$strs,$strs2,$ajax_show);
 		} else {
 			$categorys = L('please_add_category');
 		}
@@ -1370,6 +1409,76 @@ class content extends admin {
 			file_put_contents($file, $sql);
 		}
 		return true;
+	}
+
+	//管理员操作记录
+	public function admin_log($type,$id,$content='',$title='')
+	{
+		$arr 			  	= array();
+		$arr['user_id'] 	= $_SESSION['userid'];
+		$arr['type'] 		= $type;
+		$arr['catid'] 		= $this->siteid;
+		$arr['content']     = $content;
+		$arr['title']  	    = $title;
+		$arr['add_time'] 	= time();
+		$arr['lid'] 		= $id;
+		$this->db->table_name = $this->db->db_tablepre . 'admin_log';
+		$this->db->insert($arr,1); 
+	}
+
+	public function admin_log_list()
+	{
+		$this->db->table_name 	= $this->db->db_tablepre . 'admin_log';
+		$type  = getcache('type_content','commons');
+		$model = getcache('category_content_1','commons');
+		$where = ' 1=1 ';
+		if(isset($_GET['user_id']) && $_GET['user_id']) {
+			$user_id = intval($_GET['user_id']);
+			$where 	.= " AND user_id = '{$user_id}'";
+		}
+		if(isset($_GET['type']) && $_GET['type']) {
+			$type 	 = addslashes($_GET['type']);
+			$where 	.= " AND type = '{$type}'";
+		}
+		if(isset($_GET['catid']) && $_GET['catid']) {
+			$catid 		= intval($_GET['catid']);
+			$where 	   .= " AND catid = '{$catid}'";
+		}
+		if(isset($_GET['lid']) && $_GET['lid']) {
+			$lid 	 = intval($_GET['lid']);
+			$where 	.= " AND lid = '{$lid}'";
+		}
+		if(isset($_GET['id']) && $_GET['id']) {
+			$id 	 = intval($_GET['id']);
+			$where 	.= " AND id = '{$id}'";
+		}		
+		$datas = $this->db->listinfo($where,'id desc',$_GET['page']);
+		$pages = $this->db->pages;
+		$pc_hash = $_SESSION['pc_hash'];
+		for($i=1;$i<=$workflow_steps;$i++) {
+			if($_SESSION['roleid']!=1 && !in_array($i,$admin_privs)) continue;
+			$current = $steps==$i ? 'class=on' : '';
+			$r = $this->db->get_one(array('catid'=>$catid,'status'=>$i));
+			$newimg = $r ? '<img src="'.IMG_PATH.'icon/new.png" style="padding-bottom:2px" onclick="window.location.href=\'?m=content&c=content&a=&menuid='.$_GET['menuid'].'&catid='.$catid.'&steps='.$i.'&pc_hash='.$pc_hash.'\'">' : '';
+			$workflow_menu .= '<a href="?m=content&c=content&a=&menuid='.$_GET['menuid'].'&catid='.$catid.'&steps='.$i.'&pc_hash='.$pc_hash.'" '.$current.' ><em>'.L('workflow_'.$i).$newimg.'</em></a><span>|</span>';
+		}
+		if($workflow_menu) {
+			$current = isset($_GET['reject']) ? 'class=on' : '';
+			$workflow_menu .= '<a href="?m=content&c=content&a=&menuid='.$_GET['menuid'].'&catid='.$catid.'&pc_hash='.$pc_hash.'&reject=1" '.$current.' ><em>'.L('reject').'</em></a><span>|</span>';
+		}
+		//$ = 153fc6d28dda8ca94eaa3686c8eed857;获取模型的thumb字段配置信息
+
+		$model_fields = getcache('model_field_'.$modelid, 'model');
+		$setting = string2array($model_fields['thumb']['setting']);
+		$args = '1,'.$setting['upload_allowext'].','.$setting['isselectimage'].','.$setting['images_width'].','.$setting['images_height'].','.$setting['watermark'];
+		$authkey = upload_key($args);
+		$this->db->table_name  		= $this->db->db_tablepre . 'admin';
+		$user 	= $this->db->select('','userid,username');
+		$user_arr = array();
+		foreach ($user as $key => $value) {
+			$user_arr[$value['userid']] = $value;
+		}
+		include $this->admin_tpl('admin_log_list');
 	}
 }
 ?>

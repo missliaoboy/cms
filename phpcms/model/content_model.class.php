@@ -89,6 +89,7 @@ class content_model extends model {
 		//主表
 		$tablename = $this->table_name = $this->db_tablepre.$this->model_tablename;
 		$id = $modelinfo['id'] = $this->insert($systeminfo,true);
+		$systeminfo['wirtes']  = $_SESSION['userid'];
 		$this->update($systeminfo,array('id'=>$id));
 		//更新URL地址
 		if($data['islink']==1) {
@@ -304,8 +305,14 @@ class content_model extends model {
 		$systeminfo['keywords'] = str_replace(array('/','\\','#','.',"'"),' ',$systeminfo['keywords']);
 		//主表
 		$this->table_name = $this->db_tablepre.$model_tablename;
+		$wirtesarr 	= $this->get_one(array('id'=>$id));
+		if(!empty($wirtesarr)){
+			$systeminfo['wirtes'] 		= trim($wirtesarr['wirtes'] .','. $_SESSION['userid'],',');
+			// if($this->modelid == 2){
+			// 	$systeminfo['push_type'] 	= 0;
+			// }
+		}
 		$this->update($systeminfo,array('id'=>$id));
-
 		//附属表
 		$this->table_name = $this->table_name.'_data';
 		$this->update($modelinfo,array('id'=>$id));

@@ -73,6 +73,11 @@ include $this->admin_tpl('header','admin');?>
 			<th width="300"><?php echo L('title');?></th>
 			<th>SEO<?php echo L('title');?></th>
 			<th>关键词</th>
+			<?php  if($_SESSION['roleid'] == 1){ ?>
+				<th width="200">审核人员</th>
+				<th width="70">修改人员</th>			
+			<?php	} ?>
+			<th width="40">最近修改人员</th>
             <th width="40" onclick="type_sort(this)" alt='hits' style="font-weight:blod;color:red;"><?php echo L('hits');?></th>
             <th width="70"><?php echo L('publish_user');?></th>
             <th width="118" onclick="type_sort(this)" alt='updatetime' style="font-weight:blod;color:red;"><?php echo L('updatetime');?></th>
@@ -111,6 +116,43 @@ include $this->admin_tpl('header','admin');?>
 			echo '<a href="javascript:;" onclick=\'window.open("?m=content&c=content&a=public_preview&steps='.$steps.'&catid='.$catid.'&id='.$r['id'].'","manage")\'>';
 		}?><span<?php echo title_style($r['style'])?> ><img src="<?php echo IMG_PATH.'icon/arrow.png'; ?>"></span></a> <?php if($r['thumb']!='') {echo '<img src="'.IMG_PATH.'icon/small_img.gif" title="'.L('thumb').'">'; } if($r['posids']) {echo '<img src="'.IMG_PATH.'icon/small_elite.gif" title="'.L('elite').'">';} if($r['islink']) {echo ' <img src="'.IMG_PATH.'icon/link.png" title="'.L('islink_url').'">';}?></td>
 		<td onclick="change_keywords(this)" title="keywords"><?php echo $r['keywords'];?></td>
+		<?php  if($_SESSION['roleid'] == 1){ ?>
+			<td align="center">
+				<?php 
+					if(!empty($r['user_check'])){
+						$user_check = string2array($r['user_check']);
+						$msg 	= '';
+						foreach ($user_check as $key => $value) {
+							$msg .= $key."审<b style='color:red;'>".$admin_user[$value]['username']."</b>,";
+						}
+						echo trim($msg,',');
+					}
+				?>
+			</td>
+			<td align="center" class="wirtes" onclick="type_sort(this)" alt="wirtes">
+				<?php 
+					if(!empty($r['wirtes'])){
+						$user = explode(',', $r['wirtes']);
+						$adminUser = '';
+						foreach ($user as $key => $value) {
+							//echo $admin_user[$value]['username'].',';
+							$adminUser .= $admin_user[$value]['username'].',';
+						}
+						echo trim($adminUser,',');
+					}
+				?>
+			</td>		
+		<?php	} ?>
+		<td align='center'>
+		<?php 
+			if(!empty($r['wirtes'])){
+				$user = explode(',', $r['wirtes']);
+				$user_count = count($user) - 1;
+				echo $admin_user[$user[$user_count]]['username'];
+			}
+		?>
+		</td>
+
 		<td align='center' title="<?php echo L('today_hits');?>：<?php echo $hits_r['dayviews'];?>&#10;<?php echo L('yestoday_hits');?>：<?php echo $hits_r['yesterdayviews'];?>&#10;<?php echo L('week_hits');?>：<?php echo $hits_r['weekviews'];?>&#10;<?php echo L('month_hits');?>：<?php echo $hits_r['monthviews'];?>"><?php echo $hits_r['views'];?></td>
 		<td align='center'>
 		<?php
