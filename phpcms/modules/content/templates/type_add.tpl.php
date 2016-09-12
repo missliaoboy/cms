@@ -23,25 +23,25 @@ include $this->admin_tpl('header','admin');
     <th><?php echo L('description')?>：</th>
     <td class="y-bg"><textarea name="info[description]" maxlength="255" style="width:300px;height:60px;"></textarea></td>
   </tr>
+  </tr>
+    <tr>
+    <th>所属分组：</th>
+    <td class="y-bg">
+          <select name="info[type_deam_id]">
+                <option>请选择分组</option>
+                <?php 
+                      foreach ($type_deam as $key => $value) {
+                            echo "<option value='".$value['id']."'>".$value['name']."</option>";
+                      }
+                ?>
+          </select>
+    </td>
+  </tr>
 </table>
 
 <div class="bk15"></div>
     <input type="submit" class="dialog" id="dosubmit" name="dosubmit" value="<?php echo L('submit');?>" />
 
-    </div>
-    <div class="col-2 col-auto">
-        <div class="content" style="padding:1px;overflow-x:hidden;overflow-y:auto;height:480px;">
-		<table width="100%" class="table-list">
-			  <thead>
-				<tr>
-				  <th width="25"><input type="checkbox" value="" id="check_box" onclick="selectall('ids[]');" title="<?php echo L('selected_all');?>"></th><th align="left"><?php echo L('catname');?></th>
-			  </tr>
-			    </thead>
-				 <tbody>
-		<?php echo $categorys;?>
-		</tbody>
-		</table>
-        </div>
     </div>
 </div>
 </form>

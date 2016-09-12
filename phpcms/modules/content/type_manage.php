@@ -22,10 +22,29 @@ class type_manage extends admin {
 			$datas[] = $r;
 		}
 		$big_menu = array('javascript:window.top.art.dialog({id:\'add\',iframe:\'?m=content&c=type_manage&a=add\', title:\''.L('add_type').'\', width:\'780\', height:\'500\', lock:true}, function(){var d = window.top.art.dialog({id:\'add\'}).data.iframe;var form = d.document.getElementById(\'dosubmit\');form.click();return false;}, function(){window.top.art.dialog({id:\'add\'}).close()});void(0);', L('add_type'));
+		$big_menu2 = array('javascript:window.top.art.dialog({id:\'add_deam\',iframe:\'?m=content&c=type_manage&a=add_deam\', title:\'新增类别组\', width:\'780\', height:\'500\', lock:true}, function(){var d = window.top.art.dialog({id:\'add_deam\'}).data.iframe;var form = d.document.getElementById(\'dosubmit\');form.click();return false;}, function(){window.top.art.dialog({id:\'add_deam\'}).close()});void(0);', '新增类别组');
+		$big_menu3 = array('?m=content&c=type_manage&a=add_deam_list', '类别组列表');		
 		$this->cache();
+		$this->cache_deam();
 		include $this->admin_tpl('type_list');
 	}
 	public function add() {
+		if(isset($_POST['dosubmit'])) {
+			$_POST['info']['siteid'] = $this->siteid;
+			$_POST['info']['module'] = 'content';
+			if(empty($_POST['info']['name']) || empty($_POST['info']['type_deam_id']) ) showmessage(L("input").L('type_name'));
+			$typeid = $this->db->insert($_POST['info'],true);
+			$this->cache();//更新类别缓存，按站点
+			showmessage(L('add_success'), '', '', 'add');
+		} else {
+			$show_header = $show_validator = '';
+			$categorys = $this->public_getsite_categorys();
+			$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+			$type_deam 		= $this->db->select();
+			include $this->admin_tpl('type_add');
+		}
+	}
+	public function add_deam() {
 		if(isset($_POST['dosubmit'])) {
 			$_POST['info']['siteid'] = $this->siteid;
 			$_POST['info']['module'] = 'content';
@@ -35,27 +54,105 @@ class type_manage extends admin {
 
 			foreach ($names as $name) {
 				$_POST['info']['name'] = $name;
+				$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
 				$typeid = $this->db->insert($_POST['info'],true);
 				if(!empty($ids)) {
 					foreach ($ids as $catid) {
-						$r = $this->category_db->get_one(array('catid'=>$catid),'usable_type');
-						if($r['usable_type']) {
-							$usable_type = $r['usable_type'].$typeid.',';
+						$r = $this->category_db->get_one(array('catid'=>$catid),'usable_deam_type');
+						if($r['usable_deam_type']) {
+							$usable_type = $r['usable_deam_type'].$typeid.',';
 						} else {
 							$usable_type = ','.$typeid.',';
 						}
-						$this->category_db->update(array('usable_type'=>$usable_type),array('catid'=>$catid,'siteid'=>$this->siteid));
+						$this->category_db->update(array('usable_deam_type'=>$usable_type),array('catid'=>$catid,'siteid'=>$this->siteid));
 					}
 				}
 			}
-			$this->cache();//更新类别缓存，按站点
-			showmessage(L('add_success'), '', '', 'add');
+			// $this->cache();//更新类别缓存，按站点
+			showmessage(L('add_success'), '', '', 'add_deam');
 		} else {
 			$show_header = $show_validator = '';
-			$categorys = $this->public_getsite_categorys();
-			include $this->admin_tpl('type_add');
+			$categorys = $this->public_getsite_categorys2();
+			include $this->admin_tpl('type_add_deam');
 		}
 	}
+
+	public function add_deam_list()
+	{
+		$datas = array();
+		$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+		$result_datas = $this->db->listinfo(array('siteid'=>$this->siteid,'module'=>'content'),'listorder ASC,id DESC',$_GET['page']);
+		$pages = $this->db->pages;
+		foreach($result_datas as $r) {
+			$r['modelname'] = $this->model[$r['modelid']]['name'];
+			$datas[] = $r;
+		}
+		$big_menu = array('javascript:window.top.art.dialog({id:\'add\',iframe:\'?m=content&c=type_manage&a=add\', title:\''.L('add_type').'\', width:\'780\', height:\'500\', lock:true}, function(){var d = window.top.art.dialog({id:\'add\'}).data.iframe;var form = d.document.getElementById(\'dosubmit\');form.click();return false;}, function(){window.top.art.dialog({id:\'add\'}).close()});void(0);', L('add_type'));
+		$big_menu2 = array('javascript:window.top.art.dialog({id:\'add_deam\',iframe:\'?m=content&c=type_manage&a=add_deam\', title:\'新增类别组\', width:\'780\', height:\'500\', lock:true}, function(){var d = window.top.art.dialog({id:\'add_deam\'}).data.iframe;var form = d.document.getElementById(\'dosubmit\');form.click();return false;}, function(){window.top.art.dialog({id:\'add_deam\'}).close()});void(0);', '新增类别组');
+		$big_menu3 = array('?m=content&c=type_manage&a=add_deam_list', '类别组列表');		
+		// $this->cache();
+		include $this->admin_tpl('deam_list');
+	}
+
+	public function deam_edit() {
+		if(isset($_POST['dosubmit'])) {
+			$typeid = intval($_POST['id']);
+			$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+			$this->db->update($_POST['info'],array('id'=>$typeid));
+			$ids = $_POST['ids'];
+			if(!empty($ids)) {
+				foreach ($ids as $catid) {
+					$r = $this->category_db->get_one(array('catid'=>$catid),'usable_deam_type');
+					if($r['usable_deam_type']) {
+						$usable_deam_type = array();
+						$usable_type_arr = explode(',', $r['usable_deam_type']);
+						foreach ($usable_type_arr as $_usable_type_arr) {
+							if($_usable_type_arr && $_usable_type_arr!=$typeid) $usable_deam_type[] = $_usable_type_arr;
+						}
+						$usable_deam_type = ','.implode(',', $usable_deam_type).',';
+						$usable_deam_type = $usable_deam_type.$typeid.',';
+					} else {
+						$usable_deam_type = ','.$typeid.',';
+					}
+					$this->category_db->update(array('usable_deam_type'=>$usable_deam_type),array('catid'=>$catid,'siteid'=>$this->siteid));
+				}
+			}
+			//删除取消的
+			$catids_string = $_POST['catids_string'];
+			if($catids_string) {	
+				$catids_string = explode(',', $catids_string);
+				foreach ($catids_string as $catid) {
+					$r = $this->category_db->get_one(array('catid'=>$catid),'usable_deam_type');
+					$usable_deam_type = array();
+					$usable_type_arr = explode(',', $r['usable_deam_type']);
+					foreach ($usable_type_arr as $_usable_type_arr) {
+						if(!$_usable_type_arr || (!in_array($catid, $ids) && $typeid==$_usable_type_arr)) continue;
+						$usable_deam_type[] = $_usable_type_arr;
+					}
+					if(!empty($usable_deam_type)) {
+						$usable_deam_type = ','.implode(',', $usable_deam_type).',';
+					} else {
+						$usable_deam_type = '';
+					}
+					$this->category_db->update(array('usable_deam_type'=>$usable_deam_type),array('catid'=>$catid,'siteid'=>$this->siteid));
+				}
+			}
+			$this->category_cache();
+			// $this->cache();//更新类别缓存，按站点
+			showmessage(L('update_success'), '', '', 'type_deam_edit');
+		} else {
+			$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+			$show_header = $show_validator = '';
+			$id     = intval($_GET['id']);
+			$r 		= $this->db->get_one(array('id'=>$id));
+			extract($r);
+			$categorys = $this->public_getsite_categorys2($id);
+
+			$catids_string = empty($this->catids_string) ? 0 : $this->catids_string = implode(',', $this->catids_string);
+			include $this->admin_tpl('type_deam_edit');
+		}
+	}
+
 	public function edit() {
 		if(isset($_POST['dosubmit'])) {
 			$typeid = intval($_POST['typeid']);
@@ -106,6 +203,8 @@ class type_manage extends admin {
 			$typeid = intval($_GET['typeid']);
 			$r = $this->db->get_one(array('typeid'=>$typeid));
 			extract($r);
+			$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+			$type_deam 		= $this->db->select();
 			$categorys = $this->public_getsite_categorys($typeid);
 			$catids_string = empty($this->catids_string) ? 0 : $this->catids_string = implode(',', $this->catids_string);
 			include $this->admin_tpl('type_edit');
@@ -134,7 +233,30 @@ class type_manage extends admin {
 		$this->cache();//更新类别缓存，按站点
 		exit('1');
 	}
-	
+
+	public function deam_delete() {
+		$typeid = intval($_GET['id']);
+		$categorys = $this->public_getsite_categorys2($typeid);
+		foreach ($this->catids_string as $catid) {
+			$r = $this->category_db->get_one(array('catid'=>$catid),'usable_deam_type');
+			$usable_deam_type = array();
+			$usable_type_arr = explode(',', $r['usable_deam_type']);
+			foreach ($usable_type_arr as $_usable_type_arr) {
+				if(!$_usable_type_arr || $typeid==$_usable_type_arr) continue;
+				$usable_deam_type[] = $_usable_type_arr;
+			}
+			if(!empty($usable_deam_type)) {
+				$usable_deam_type = ','.implode(',', $usable_deam_type).',';
+			} else {
+				$usable_deam_type = '';
+			}
+			$this->category_db->update(array('usable_deam_type'=>$usable_deam_type),array('catid'=>$catid,'siteid'=>$this->siteid));
+		}
+		$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+		$this->db->delete(array('id'=>$typeid));
+		// $this->cache();//更新类别缓存，按站点
+		exit('1');
+	}
 	/**
 	 * 排序
 	 */
@@ -160,6 +282,18 @@ class type_manage extends admin {
 		$this->category_cache();
 		return true;
 	}
+
+	public function cache_deam() {
+		$datas = array();
+		$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
+		$type_deam 		= $this->db->select();
+		foreach($type_deam as $_key=>$_value) {
+			$datas[$_value['id']] = $_value;
+		}
+		setcache('type_deam_'.$this->siteid,$datas,'commons');
+		$this->category_cache();
+		return true;
+	}
 	/**
 	 * 选择可用栏目
 	 */
@@ -181,6 +315,44 @@ class type_manage extends admin {
 				if($typeid && $r['usable_type']) {
 					$usable_type = explode(',', $r['usable_type']);
 					if(in_array($typeid, $usable_type)) {
+						$checked = 'checked';
+						$this->catids_string[] = $r['catid'];
+					}
+				}
+				$r['checkbox'] = "<input type='checkbox' name='ids[]' value='{$r[catid]}' {$checked}>";
+				$r['style'] = '';
+			}
+			$categorys[$r['catid']] = $r;
+		}
+		$str  = "<tr>
+					<td align='center'>\$checkbox</td>
+					<td style='\$style'>\$spacer\$catname</td>
+				</tr>";
+		$tree->init($categorys);
+		$categorys = $tree->get_tree(0, $str);
+		return $categorys;
+	}
+		/**
+	 * 选择可用栏目
+	 */
+	public function public_getsite_categorys2($typeid = 0) {
+		$siteid = $this->siteid;
+		$this->categorys = getcache('category_content_'.$siteid,'commons');
+		$tree = pc_base::load_sys_class('tree');
+		$tree->icon = array('&nbsp;&nbsp;&nbsp;│ ','&nbsp;&nbsp;&nbsp;├─ ','&nbsp;&nbsp;&nbsp;└─ ');
+		$tree->nbsp = '&nbsp;&nbsp;&nbsp;';
+		$categorys = array();
+		$this->catids_string = array();
+		foreach($this->categorys as $r) {
+			if($r['siteid']!=$siteid || $r['type']!=0) continue;
+			if($r['child']) {
+				$r['checkbox'] = '';
+				$r['style'] = 'color:#8A8A8A;';
+			} else {
+				$checked = '';
+				if($typeid && $r['usable_deam_type']) {
+					$usable_deam_type = explode(',', $r['usable_deam_type']);
+					if(in_array($typeid, $usable_deam_type)) {
 						$checked = 'checked';
 						$this->catids_string[] = $r['catid'];
 					}
