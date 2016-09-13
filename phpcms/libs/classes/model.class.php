@@ -72,7 +72,37 @@ class model {
             return array();
         }
     }
-
+    
+	/**
+	 * 点击量数据查询并分页
+	 * @param $where
+	 * @param $order
+	 * @param $page
+	 * @param $pagesize
+	 * @return unknown_type
+	 */
+	final public function listinfo2($where = '', $order = '', $page = 1, $pagesize = 20, $key='', $setpages = 10,$urlrule = '',$array = array(), $data = '*') {
+		$where = to_sqls($where);
+		$this->number = $this->count($where);
+		$where = strtolower($where);
+		$arr = explode('and', $where);
+		foreach ($arr as $key => $value) {
+			$arr[$key] = " n.".trim($value);
+		}
+		$where = implode(' and ', $arr);
+				$page = max(intval($page), 1);
+		$offset = $pagesize*($page-1);
+		$sql = 'SELECT n.*,h.views FROM '.$this->table_name.' n left join '.$this->db_tablepre.'hits h on n.id=h.id where h.catid=n.catid and '.$where.' order by '.$order.' limit '.$offset.",".$pagesize;
+		$result 	= $this->query($sql);
+		$this->pages = pages($this->number, $page, $pagesize, $urlrule, $array, $setpages);
+		return $this->fetch_array();
+		// $array = array();
+		// if ($this->number > 0) {
+		// 	return $this->select($where, $data, "$offset, $pagesize", $order, '', $key);
+		// } else {
+		// 	return array();
+		// }
+	}
 	/**
 	 * 获取单条记录查询
 	 * @param $where 		查询条件

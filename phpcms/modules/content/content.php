@@ -333,13 +333,14 @@ class content extends admin {
 			//设置cookie 在附件添加处调用
 			param::set_cookie('module', 'content');
 
-			if(isset($_GET['catid']) && $_GET['catid']) {
+			// if(isset($_GET['catid']) && $_GET['catid']) {
 				$catid = $_GET['catid'] = intval($_GET['catid']);
 				
 				param::set_cookie('catid', $catid);
 				$category = $this->categorys[$catid];
 				if($category['type']==0) {
-					$modelid = $category['modelid'];
+					// $modelid = $category['modelid'];
+					$modelid = isset($category['modelid']) && $category['modelid'] > 0 ? $category['modelid']: $_REQUEST['modelid'];
 					//取模型ID，依模型ID来生成对应的表单
 					require CACHE_MODEL_PATH.'content_form.class.php';
 					$content_form = new content_form($modelid,$catid,$this->categorys);
@@ -372,9 +373,9 @@ class content extends admin {
 					}
 					include $this->admin_tpl('content_page');
 				}
-			} else {
-				include $this->admin_tpl('content_add');
-			}
+			// } else {
+			// 	include $this->admin_tpl('content_add');
+			// }
 			header("Cache-control: private");
 		}
 	}
