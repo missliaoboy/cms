@@ -36,7 +36,8 @@ class push extends admin {
 
 			if(is_array($ids)) {
 				foreach($ids as $id) {
-					$info[$id] = $c->get_content($_POST['catid'], $id);
+					// $info[$id] = $c->get_content($_POST['catid'], $id);
+					$info[$id] = $c->get_content($_POST['catid'], $id,$_POST['modelid']);
 				}
 			}
 			$_GET['add_action'] = $_GET['add_action'] ? $_GET['add_action'] : $_GET['action']; 

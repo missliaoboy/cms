@@ -133,6 +133,7 @@ class push_api {
 						}
 					}
 					foreach ($param as $d) {
+						$catid 	= $d['catid'];
 						$info['id'] = $info['listorder'] = $d['id'];
 						$info['catid'] = $catid;
 						$info['posid'] = $pid;
@@ -206,7 +207,7 @@ class push_api {
 					//if ($p['catid']) $catids = array_keys((array)subcat($p['catid'], 0, 1));
 					//获取栏目下所有子栏目
 					if ($p['catid']) $catids = explode(',',$category[$p['catid']]['arrchildid']);
-					if (($p['siteid']==0 || $p['siteid']==$siteid) && ($p['modelid']==0 || $p['modelid']==$param['modelid']) && ($p['catid']==0 || in_array($param['catid'], $catids))) {
+					if (($p['siteid']==0 || $p['siteid']==$siteid) && ($p['modelid']==0 || $p['modelid']==$param['modelid']) && ($p['catid']==0 || empty($param['catid']) || in_array($param['catid'], $catids))) {
 						$info[$pid] = $p['name'];
 					}
 				}

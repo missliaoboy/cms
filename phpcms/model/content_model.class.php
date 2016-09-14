@@ -433,25 +433,27 @@ class content_model extends model {
 	 * @param $catid
 	 * @param $id
 	 */
-	public function get_content($catid,$id) {
+	public function get_content($catid,$id,$modelid='') {
 		$catid = intval($catid);
 		$id = intval($id);
-		if(!$catid || !$id) return false;
+		if(!$id) return false;
 		$siteids = getcache('category_content','commons');
 		$siteid = $siteids[$catid];
-		$this->category = getcache('category_content_'.$siteid,'commons');
-		if(isset($this->category[$catid]) && $this->category[$catid]['type'] == 0) {
-			$modelid = $this->category[$catid]['modelid'];
-			$this->set_model($modelid);
-			$r = $this->get_one(array('id'=>$id));
-			//附属表
-			$this->table_name = $this->table_name.'_data';
-			$r2 = $this->get_one(array('id'=>$id));
-			if($r2) {
-				return array_merge($r,$r2);
-			} else {
-				return $r;
-			}
+		if(empty($modelid)) {
+			$this->category = getcache('category_content_'.$siteid,'commons');
+			if(isset($this->category[$catid]) && $this->category[$catid]['type'] == 0) {
+				$modelid = $this->category[$catid]['modelid'];
+			}			
+		}
+		$this->set_model($modelid);
+		$r = $this->get_one(array('id'=>$id));
+		//附属表
+		$this->table_name = $this->table_name.'_data';
+		$r2 = $this->get_one(array('id'=>$id));
+		if($r2) {
+			return array_merge($r,$r2);
+		} else {
+			return $r;
 		}
 		return true;
 	}
