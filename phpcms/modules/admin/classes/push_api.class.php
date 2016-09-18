@@ -217,6 +217,22 @@ class push_api {
 			}
 		}
 	}
+
+
+	//获取 id 所有的推荐位
+	public function get_position_posid($modelid,$id)
+	{
+		$this->db->query(" select posid from ".$this->db->db_tablepre ."position_data where modelid =" . $modelid . " and id =".$id );
+		$arr 	= $this->db->fetch_array();
+		$arr2 	= array();
+		if(!empty($arr)){
+			foreach ($arr as $key => $value) {
+				$arr2[] 	= $value['posid'];
+			}
+		}
+		return $arr2;
+	}
+
  }
 
  ?>

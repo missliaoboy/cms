@@ -48,6 +48,10 @@ class push extends admin {
 			if (method_exists($this->push, $_GET['action'])) {
 				$html = $this->push->{$_GET['action']}(array('modelid'=>$_GET['modelid'], 'catid'=>$_GET['catid']));
 				$tpl = isset($_GET['tpl']) ? 'push_to_category' : 'push_list';
+				$id  = isset($_GET['id']) && !empty($_GET['id']) ? explode('|', $_GET['id']): '';
+				if(is_array($id) && count($id) == 1){
+					$arr 	= $this->push->get_position_posid($_GET['modelid'],$id[0]);
+				}
 				include $this->admin_tpl($tpl);
 			} else {
 				showmessage('CLASS METHOD NO EXISTS!', 'blank');
