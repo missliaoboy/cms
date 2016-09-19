@@ -525,6 +525,7 @@ class content extends admin {
 	 * 过审内容
 	 */
 	public function pass() {
+		$time_start 	= microtime(true);
 		$admin_username = param::get_cookie('admin_username');
 		$catid = intval($_GET['catid']);
 		
@@ -567,6 +568,7 @@ class content extends admin {
 				$this->db->set_model($modelid);
 				$this->db->search_db = pc_base::load_model('search_model');
 				$return 	= array();
+				$return['catname'] = $category['catname'];
 				//审核通过，检查投稿奖励或扣除积分
 				if ($status==99) {
 					$html = pc_base::load_app_class('html', 'content');
@@ -574,7 +576,7 @@ class content extends admin {
 					$member_db = pc_base::load_model('member_model');
 					if (isset($_POST['ids']) && !empty($_POST['ids'])) {
 						foreach ($_POST['ids'] as $id) {
-							if( !isset($_POST['token']) && $_POST['token'] != "TOKEN_AJAX_TEMPLATE" ){
+							if( !isset($_POST['token']) && $_POST['token'] != TOKEN_AJAX_TEMPLATE ){
 								$arr_ids 	= $_POST['ids'];
 								include $this->admin_tpl('html_set');
 								exit;	
@@ -654,9 +656,11 @@ class content extends admin {
 				}
 				$this->db->status($_POST['ids'],$status);
 		}
+		$time_end  = microtime(true);
 		if(!isset($_POST['site_type']) || $_POST['site_type'] != 1){
 			showmessage(L('operation_success'),HTTP_REFERER);
 		} else {
+			$return['time'] = round($time_end - $time_start,3);
 			$return['type'] = 'success';
 			exit(json_encode($return));
 		}

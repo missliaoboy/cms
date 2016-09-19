@@ -1,0 +1,19 @@
+<!-- 2016/09/19 -->
+CREATE TABLE `lishi_keyword_config` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `catid` int(11) DEFAULT NULL COMMENT '分类id',
+  `modelid` int(11) DEFAULT NULL COMMENT '模型id',
+  `num` decimal(3,0) DEFAULT '0' COMMENT '今日投放数量',
+  `today_num` decimal(3,0) DEFAULT '0' COMMENT '门户网站采集投放数量',
+  `keywords_num` decimal(3,0) DEFAULT '0' COMMENT '关键词投放数量',
+  `updatetime` char(10) DEFAULT NULL COMMENT '最近投放时间',
+  `add_time` int(11) DEFAULT NULL COMMENT '新增时间',
+  PRIMARY KEY (`id`),
+  KEY `catid` (`catid`),
+  KEY `modelid` (`modelid`),
+  KEY `updatetime` (`updatetime`),
+  KEY `num` (`num`),
+  KEY `today_num` (`today_num`),
+  KEY `keywords_num` (`keywords_num`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='每日计划投放数量';
+//批量列表生成
