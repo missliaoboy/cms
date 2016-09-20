@@ -1842,11 +1842,7 @@ function get_vid($contentid = 0, $catid = 0, $isspecial = 0) {
 	}
 }
 
-/**
- * Function dataformat
- * 时间转换
-  * @param $n INT时间
- */
+
  function dataformat($n) {
 	$hours = floor($n/3600);
 	$minite	= floor($n%3600/60);
@@ -1861,10 +1857,22 @@ function get_vid($contentid = 0, $catid = 0, $isspecial = 0) {
 
  } 
 
- //	日志
+ /******************************************************************/
+ /*================================================================*/
+ /************* 		自定义新增函数	start    	****************/
+ /*================================================================*/
+ /******************************************************************/
+
+/**
+ * Function log_content
+ * 写日志
+ * @param $log  将要写入的信息
+ * @param $type 状态
+ * @param $file 新路径文件地址
+ */
 function log_content($log,$type=1,$file='')
 {
-	$log = $log . '    ' . date("Y-m-d H:i:s",time()). "\r\n";
+	$log = var_export($log,true) . '    ' . date("Y-m-d H:i:s",time()). "\r\n";
    	// $file = PHPCMS_PATH.'caches'.DIRECTORY_SEPARATOR.'cache_toutiao'.DIRECTORY_SEPARATOR.'logs.log';
    	$file = empty($file) ? PHPCMS_PATH.'log.log' : $file;
     if(!is_file($file)){
@@ -1886,7 +1894,11 @@ function log_content($log,$type=1,$file='')
     }
 }
 
-//获取正确的url地址
+/**
+ * Function collect_content_with
+ * 获取正确的url地址
+ * @param $url 将要转化的url
+ */
 function getrealurl($url){ 
     $header = get_headers($url,1); 
     if (strpos($header[0],'301') || strpos($header[0],'302')) 
@@ -1899,4 +1911,144 @@ function getrealurl($url){
         return $url; 
     } 
 }
+
+/**
+ * Function collect_content_with
+ * 采集文章 主题内容处理 
+ * @param $content 主内容
+ * @param $title   标题
+ */
+function collect_content_with($content,$title='')
+{
+	if(!$content)return '';
+	$content 	= strtolower($content);	
+	$content 	= preg_replace('/<([^>]+?(?:(a)|(img))) [^>]*>/', '<$1>', $content);
+	$content 	= preg_replace('/<a[^>]*>|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([\S\s]+?)<\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[\S\s]+?>|<\/font>|<iframe[\S\s]+?>|<\/iframe>/', '', $content);
+	$content 	= preg_replace('/<img[^>]*src=[\'|\"]([^>]+?)[\'|\"][^>]*>/',"<img src='$1' alt='".$title."' />",$content);
+	return $content;
+}
+
+/*
+*功能：php多种方式完美实现下载远程图片保存到本地
+*参数：文件url,保存文件名称，使用的下载方式
+*当保存文件名称为空时则使用远程文件原来的名称
+*/
+function collect_getImage($url,$type=0,$host=''){
+    if($url==''){return '';}
+    $arr 	= parse_url($url);
+    if(empty($arr['host']))
+    {
+    	$url = trim($host,'/').'/'.trim($url,'/');
+    }
+    if( $arr['host'] == trim(APP_PATH,'/') ){
+    	return $url;
+    }
+    $path 	= PHPCMS_PATH.'uploadfile/toutiao';
+    if(!is_dir(dirname($path.$arr['path']))){
+        mkdir(dirname($path.$arr['path']),0777,true);
+    }
+    //文件保存路径
+    if($type){
+		$ch=curl_init();
+		$timeout=5;
+		curl_setopt($ch,CURLOPT_URL,$url);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+		$img=curl_exec($ch);
+		curl_close($ch);
+    }else{
+		ob_start();
+		readfile($url);
+		$img=ob_get_contents();
+		ob_end_clean();
+    }
+    //文件大小
+	$size=strlen($img);
+	if( $size > 0 ){
+        $fp2=@fopen($path.$arr['path'],'x+');
+        fwrite($fp2,$img);
+        fclose($fp2);
+        watermark($path.$arr['path']);  //打水印
+        return trim(APP_PATH,'/').'/uploadfile/toutiao/'.trim($arr['path'],'/');        		
+	} else {
+		return '';        		
+	}
+}
+
+
+/**
+ * Function collect_content_img
+ * 采集文章内容图片 
+ * @param $content 主内容
+ * @param $title   标题
+ */
+function collect_content_img($content,$title,$host='')
+{
+	if(!$content)continue;
+	$content 	= strtolower($content);
+	preg_match_all('/<img[^>]*src=[\'|\"]([^>]+?)[\'|\"][^>]*>/', $content, $list);
+	if(!$list){
+		$arr2 	= array();
+		foreach ($list[1] as $k => $val) {
+			$arr3 	= collect_getImage($val,0,$host);
+			$arr2[] 	= !empty($arr3) ? '<img src="'.$arr3.'" alt="'.$title.'">':'';
+		}
+		if(!empty($arr2)){
+		$content 	= str_replace($list[0],$arr2,$content);
+	}
+	return $content;
+}
+
+/**
+ * Function collect_curl_collect
+ * 根据url 获取页面内容
+ * @param $url  采集url 
+ */
+function collect_curl_collect($url)
+{
+	if(empty($url))return '';
+	$url 		= trim($url);
+	$url 		= getrealurl($url);
+	$ch = curl_init();
+	curl_setopt($ch, CURLOPT_URL, $url);
+	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_HEADER, 0);
+	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+	curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+	$content=curl_exec($ch);
+	curl_close($ch);
+	$encode = mb_detect_encoding($content, array("ASCII",'UTF-8',"GB2312","GBK",'BIG5')); 
+	if($encode != 'UTF-8'){
+	    $content    = iconv("GBK", "UTF-8//IGNORE", $content);
+	}
+	return $content 	= strtolower($content);
+}
+
+/**
+ * Function unicode_decode
+ * 转换编码，将Unicode编码转换成可以浏览的utf-8编码
+ * @param $name  主题内容 
+ */
+function unicode_decode($name)
+{
+    $pattern = '/([\w]+)|(\\\u([\w]{4}))/i';
+    preg_match_all($pattern, $name, $matches);
+    if (!empty($matches)) {
+        $name = '';
+        for ($j = 0; $j < count($matches[0]); $j++) {
+            $str = $matches[0][$j];
+            if (strpos($str, '\\u') === 0) {
+                $code = base_convert(substr($str, 2, 2), 16, 10);
+                $code2 = base_convert(substr($str, 4), 16, 10);
+                $c = chr($code).chr($code2);
+                $c = iconv('UCS-2', 'UTF-8', $c);
+                $name .= $c;
+            } else {
+                $name .= $str;
+            }
+        }
+    }
+    return $name;
+}
+
 ?>
