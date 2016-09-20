@@ -37,10 +37,10 @@
 		$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
 		if(!empty($data2)){
 			foreach ($data2 as $key => $val) {
-				$return .= "<div style='margin:5px 0 0 0;border-bottom:1px dashed black;'><span style='font-weight:bold;font-size:15px;'>".$type_deam[$key]['name'].":</span>".form::checkbox($val,$value,'name="info['.$field.'][]" id="'.$field.'" '.$formattribute.' '.$css,L('copyfrom_tips')) ."</div>";
+				$return .= "<div style='margin:5px 0 0 0;border-bottom:1px dashed black;'><span style='font-weight:bold;font-size:15px;'>".$type_deam[$key]['name'].":</span>".form::checkbox($val,$value,'name="info['.$field.'][]" id="'.$field.'" '.$formattribute.' '.$css,L('copyfrom_tips'),'auto') ."</div>";
 			}
 		} else {
-			return form::checkbox($data,$value,'name="info['.$field.'][]" id="'.$field.'" '.$formattribute.' '.$css,L('copyfrom_tips'));
+			return form::checkbox($data,$value,'name="info['.$field.'][]" id="'.$field.'" '.$formattribute.' '.$css,L('copyfrom_tips'),'auto');
 		}
 		return $return;
 	}

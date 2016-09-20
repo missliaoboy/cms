@@ -336,7 +336,14 @@ class form {
 		foreach($array as $key=>$value) {
 			$key = trim($key);
 			$checked = ($id && in_array($key, $id)) ? 'checked' : '';
-			if($width) $string .= '<label class="ib" style="width:'.$width.'px">';
+			if($width){ 
+				if($width > 0){
+					$width2 = $width . 'px';
+				} else {
+					$width2 = $width;
+				}
+				$string .= '<label class="ib" style="width:'.$width2.';margin-left:10px;">';
+			}
 			$string .= '<input type="checkbox" '.$str.' id="'.$field.'_'.$i.'" '.$checked.' value="'.new_html_special_chars($key).'"> '.new_html_special_chars($value);
 			if($width) $string .= '</label>';
 			$i++;
