@@ -100,7 +100,7 @@
 			$.ajax({
 				url:"/index.php?m=content&c=content&a=pass&catid="+e_arr2.catid+"&steps=99&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
 				type:'post',
-				async 	: false,
+				// async 	: false,
 				data:{catid:e_arr2.catid,modelid:e_arr2.modelid,ids:e_arr2.id,'token':'www.jianglishi.cn','site_type':1},
 				dataType:'json',
 				success:function(e)
