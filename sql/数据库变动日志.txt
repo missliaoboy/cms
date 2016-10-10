@@ -17,3 +17,46 @@ CREATE TABLE `lishi_keyword_config` (
   KEY `keywords_num` (`keywords_num`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='每日计划投放数量';
 //批量列表生成
+
+<!-- 2016/10/10-->
+CREATE TABLE `lishi_type` (
+  `typeid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `type_deam_id` int(11) DEFAULT NULL,
+  `siteid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `module` char(15) NOT NULL,
+  `modelid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `image` varchar(500) DEFAULT NULL,
+  `name` char(30) NOT NULL,
+  `parentid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `typedir` char(20) NOT NULL,
+  `url` char(100) NOT NULL,
+  `template` char(30) NOT NULL,
+  `listorder` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `description` varchar(1000) NOT NULL,
+  `seotitle` varchar(255) DEFAULT NULL,
+  `seokeywords` varchar(500) DEFAULT NULL,
+  `seodescription` varchar(500) DEFAULT NULL,
+  `prefix_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`typeid`),
+  KEY `module` (`module`,`parentid`,`siteid`,`listorder`)
+) ENGINE=MyISAM AUTO_INCREMENT=233 DEFAULT CHARSET=utf8;   //类别表
+
+CREATE TABLE `lishi_type_deam` (
+  `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `siteid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `module` char(15) NOT NULL,
+  `modelid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `name` char(30) NOT NULL,
+  `parentid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `typedir` char(20) NOT NULL,
+  `url` char(100) NOT NULL,
+  `template` char(30) NOT NULL,
+  `listorder` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `description` varchar(255) NOT NULL,
+  `seotitle` varchar(255) DEFAULT NULL,
+  `seokeywords` varchar(500) DEFAULT NULL,
+  `seodescription` varchar(500) DEFAULT NULL,
+  `prefix_url` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `module` (`module`,`parentid`,`siteid`,`listorder`)
+) ENGINE=MyISAM AUTO_INCREMENT=40 DEFAULT CHARSET=utf8; //类别组标

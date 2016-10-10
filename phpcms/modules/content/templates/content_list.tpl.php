@@ -189,6 +189,7 @@ include $this->admin_tpl('header','admin');?>
 		</table>
 		</div>
 		<?php }}?>
+		<input type="button" class="button" value="类别" onclick="type_push();"/>
 		<input type="button" class="button" value="<?php echo L('remove');?>" onclick="myform.action='?m=content&c=content&a=remove&catid=<?php echo $catid;?>';myform.submit();"/>
 		<?php echo runhook('admin_content_init')?>
 	</div>
@@ -198,6 +199,27 @@ include $this->admin_tpl('header','admin');?>
 </div>
 <script language="javascript" type="text/javascript" src="<?php echo JS_PATH?>cookie.js"></script>
 <script type="text/javascript"> 
+
+function type_push()
+{
+	var str = 0;
+	var id = tag = '';
+	$("input[name='ids[]']").each(function() {
+		if($(this).attr('checked')=='checked') {
+			str = 1;
+			id += tag+$(this).val();
+			tag = '|';
+		}
+	});
+	if(str==0) {
+		alert('<?php echo L('you_do_not_check');?>');
+		return false;
+	}
+	window.top.art.dialog({id:'type_push'}).close();
+	window.top.art.dialog({title:'类别：',id:'type_push',iframe:'?m=content&c=type&a=type_list&catid=<?php echo $catid?>&modelid=<?php echo $modelid?>&id='+id,width:'800',height:'500'}, function(){var d = window.top.art.dialog({id:'type_push'}).data.iframe;// 使用内置接口获取iframe对象
+	var form = d.document.getElementById('dosubmit');form.click();return false;}, function(){window.top.art.dialog({id:'type_push'}).close()});
+}
+
 <!--
 function push() {
 	var str = 0;

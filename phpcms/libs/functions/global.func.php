@@ -1923,7 +1923,7 @@ function collect_content_with($content,$title='')
 	if(!$content)return '';
 	$content 	= strtolower($content);	
 	$content 	= preg_replace('/<([^>]+?(?:(a)|(img))) [^>]*>/', '<$1>', $content);
-	$content 	= preg_replace('/<a[^>]*>|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([\S\s]+?)<\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[\S\s]+?>|<\/font>|<iframe[\S\s]+?>|<\/iframe>/', '', $content);
+	$content 	= preg_replace('/<a[^>]*>|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([\S\s]+?)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[\S\s]+?>|<\/font>|<iframe[\S\s]+?>|<\/iframe>/', '', $content);
 	$content 	= preg_replace('/<img[^>]*src=[\'|\"]([^>]+?)[\'|\"][^>]*>/',"<img src='$1' alt='".$title."' />",$content);
 	return $content;
 }
@@ -1968,8 +1968,12 @@ function collect_getImage($url,$type=0,$host=''){
         $fp2=@fopen($path.$arr['path'],'x+');
         fwrite($fp2,$img);
         fclose($fp2);
-        watermark($path.$arr['path']);  //打水印
-        return trim(APP_PATH,'/').'/uploadfile/toutiao/'.trim($arr['path'],'/');        		
+        if( is_file($path.$arr['path']) ){
+			watermark($path.$arr['path']);  //打水印
+        	return trim(APP_PATH,'/').'/uploadfile/toutiao/'.trim($arr['path'],'/');
+        } else {
+			return $url;        	
+        }
 	} else {
 		return '';        		
 	}
@@ -1994,7 +1998,8 @@ function collect_content_img($content,$title,$host='')
 			$arr2[] 	= !empty($arr3) ? '<img src="'.$arr3.'" alt="'.$title.'">':'';
 		}
 		if(!empty($arr2)){
-		$content 	= str_replace($list[0],$arr2,$content);
+			$content 	= str_replace($list[0],$arr2,$content);
+		}
 	}
 	return $content;
 }
@@ -2050,5 +2055,148 @@ function unicode_decode($name)
     }
     return $name;
 }
+/**
+ * 类别分页函数
+ *
+ * @param $num 信息总数
+ * @param $curr_page 当前分页
+ * @param $perpage 每页显示数
+ * @param $urlrule URL规则
+ * @param $array 需要传递的数组，用于增加额外的方法
+ * @return 分页
+ */
+function pages_type_list($num, $curr_page, $perpage = 20, $urlrule = '', $array = array(),$setpages = 9) {
+	if( defined("MAX_PAGES") && MAX_PAGES > 0){
+		$curr_page = $curr_page > MAX_PAGES ?  MAX_PAGES : $curr_page;
+		if($num > MAX_PAGES * $perpage){
+			$num = MAX_PAGES * $perpage;
+		}	
+	}
+	// if($_GET['c'] == 'with_set' && $_GET['a'] == 'ctwh_type_with' && $_POST['typeid'] ){
+		$type 		= getcache('type_content_1','commons');
+		$type_deam 	= getcache('type_deam_1','commons');
+		$urlrule 	= '/' . Hanzi2PinYin(trim($type_deam[$type[$_POST['typeid']]['type_deam_id']]['name'],'组')) . '/' . Hanzi2PinYin($type[$_POST['typeid']]['name']) . '/list_{$page}.html';
+	// }
+	$multipage = '';
+	if($num > $perpage) {
+		$page = $setpages+1;
+		$offset = ceil($setpages/2-1);
+		$pages = ceil($num / $perpage);
+		if (defined('IN_ADMIN') && !defined('PAGES')) define('PAGES', $pages);
+		$from = $curr_page - $offset;
+		$to = $curr_page + $offset;
+		$more = 0;
+		if($page >= $pages) {
+			$from = 2;
+			$to = $pages-1;
+		} else {
+			if($from <= 1) {
+				$to = $page-1;
+				$from = 2;
+			}  elseif($to >= $pages) {
+				$from = $pages-($page-2);
+				$to = $pages-1;
+			}
+			$more = 1;
+		}
+		$urlAppPath = rtrim(APP_PATH,'\/');
+		$strPage = '';
+		if($curr_page>0) {
+			if($curr_page == 1){
+				$strPage .= '<span class="active">1</span>';
+			}else if($curr_page>4 && $more){
+				$multipage .= ' <a href="'.str_replace('list_1.html','list_index.html',$urlAppPath.pageurl($urlrule, $curr_page-1, $array)).'">上一页</a>';
+				$multipage .= ' <a href="'.str_replace('list_1.html','list_index.html',$urlAppPath.pageurl($urlrule, 1, $array)).'">首页</a>';
+			}else{
+				$strPage .= ' <a href="'.str_replace('list_1.html','list_index.html',$urlAppPath.pageurl($urlrule, 1, $array)).'">1</a>';
+				$multipage .= ' <a href="'.str_replace('list_1.html','list_index.html',$urlAppPath.pageurl($urlrule, $curr_page-1, $array)).'">'.L('previous').'</a>';
+				$multipage .= ' <a href="'.str_replace('list_1.html','list_index.html',$urlAppPath.pageurl($urlrule, 1, $array)).'">首页</a>';
+			}
+		}else{ 
+			$strPage .= '<span  class="active">1</span>';
+		}
+		$multipage .= $strPage;
+		for($i = $from; $i <= $to; $i++) {
+			if($i != $curr_page) {
+				$multipage .= ' <a href="'.$urlAppPath.pageurl($urlrule, $i, $array).'">'.$i.'</a>';
+			} else {
+				$multipage .= '<span class="active">'.$i.'</span>';
+			}
+		}
+		//var_dump($multipage);
+		if($curr_page<$pages) {
+			
+			if($curr_page>=$pages-4 && $more) {
+				$multipage .= '<a href="'.$urlAppPath.pageurl($urlrule, $pages, $array).'">'.$pages.'</a>';
+				$multipage .= '<a href="'.$urlAppPath.pageurl($urlrule, $curr_page+1, $array).'" >'.L('next').'</a>';
+			} else {
+				if($pages <= 10)
+				  $multipage .= '<a href="'.$urlAppPath.pageurl($urlrule, $pages, $array).'">'.$pages.'</a>';
+				$multipage .= ' <a href="'.$urlAppPath.pageurl($urlrule, $pages, $array).'">尾页</a> <a href="'.$urlAppPath.pageurl($urlrule, $curr_page+1, $array).'">'.L('next').'</a>';
+			}
+		} elseif($curr_page==$pages) {
+			$multipage .= '<span class="active">'.$pages.'</span>';
+		} else {
+			$multipage .= '<a href="'.$urlAppPath.pageurl($urlrule, $pages, $array).'">尾页</a> <a href="'.$urlAppPath.pageurl($urlrule, $curr_page+1, $array).'">'.L('next').'</a>';
+		}
+	}
+	return $multipage;
+}
 
+/**
+ * Function Hanzi2PinYin
+ * 汉字转拼音，将汉字转为拼音
+ * @param $str  将要转化的汉字 
+ */
+function Hanzi2PinYin($str){
+    global $pinyins;
+    $str = iconv("UTF-8","GBK",$str);
+    $res = '';
+    $str = trim($str);
+    $slen = strlen($str);
+    if($slen<2){
+        return $str;
+    }
+    if(count($pinyins)==0){
+        $fp = fopen(PHPCMS_PATH .'/caches/configs/pinyin.dat','r');
+        while(!feof($fp)){
+            $line = trim(fgets($fp));
+            $pinyins[$line[0].$line[1]] = substr($line,3,strlen($line)-3);
+        }
+        fclose($fp);
+    }
+    for($i=0;$i<$slen;$i++){
+        if(ord($str[$i])>0x80){
+            $c = $str[$i].$str[$i+1];
+            $i++;
+            if(isset($pinyins[$c])){
+                $res .= $pinyins[$c];
+            }else{
+                //$res .= "_";
+            }
+        }else if( eregi("[a-z0-9]",$str[$i]) ){
+            $res .= $str[$i];
+        }
+        else{
+            //$res .= "_";
+        }
+    }
+    return $res;
+}
+
+/**
+ * Function string_split
+ * 提取汉字的拼音的首字母
+ * @param $content  将要转化的汉字 
+ */
+function string_split($content)
+{
+	if(!$content)return '';
+	$str = '';
+	$num 		= mb_strlen($content,'utf-8');
+	for( $i = 0 ; $i < $num ; $i++ ){
+		$str .= substr(Hanzi2PinYin(mb_substr($content, $i,1,'utf-8')),0,1);
+	}
+	return $str;
+}
 ?>

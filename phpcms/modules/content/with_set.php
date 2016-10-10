@@ -201,7 +201,7 @@ class with_set
 			}
 		}
 	}
-	function keywords_edit()
+	public function keywords_edit()
 	{
 		$id = intval($_POST['id']);
 		if($id > 0){
@@ -218,9 +218,198 @@ class with_set
 		}
 	}
 
-	function baidu_sitemap(){
+	public function baidu_sitemap(){
 		$url = $_GET['url'];
 		$baidu_sitemap_model = pc_base::load_model('baidu_sitemap_model');
 		$baidu_sitemap_model->start(array($url));
 	}
+
+	//将要生成的类别id传递到模板静态页面 ajax生成页面
+	public function ctwh_type()
+	{
+		set_time_limit(0);
+		$type_arr 		= array(35,36,37);
+		$this->db->table_name = $this->db->db_tablepre . 'type_deam';
+		$deam_type 		= $this->db->select();
+		$arr 	= array();
+		foreach ($deam_type as $key => $value) {
+			$arr[$value['id']] = $value; 
+		}
+		$new_arr 	= array();
+		$cache_type 	= getcache('type_content','commons');
+		$html = pc_base::load_app_class('html', 'content');
+		$time 	= time();
+		$new_system = pc_base::load_config('system'); //引入配置文件
+		foreach ($cache_type as $key => $value) {
+			$this->db->table_name 	= $this->db->db_tablepre . 'wenhua';
+			$count 	= $this->db->count($value['typeid']." in (typeid) ");
+			if( in_array($value['type_deam_id'], $type_arr) )
+			{
+				$arr2['typeid'] = $value['typeid'];
+				$arr2['time'] 	= $time;
+				$arr2['key'] 	= md5($time . $new_system['type_with_set_key'] . $value['typeid']);
+				$new_arr[] 	= $arr2;
+			}
+		}
+		if(!empty($new_arr)){
+			include admin::admin_tpl('type_set_with_day');
+		}
+	}
+
+	public function ctwh_type_with()
+	{
+		set_time_limit(0);
+		$time_start 	= microtime(true);
+		if(!$_POST['typeid'] || !$_POST['key'] || !$_POST['time'])exit(json_encode(array('msg'=>'出错了1111','type'=>1)));
+		if( $_POST['time'] + 30*60 > time() ){
+			$new_system = pc_base::load_config('system'); //引入配置文件
+			$key 	= md5($_POST['time'] . $new_system['type_with_set_key'] . $_POST['typeid'] );
+			if($key == $_POST['key']){
+				$html = pc_base::load_app_class('html', 'content');
+				$cache_type 	= getcache('type_content','commons');
+				if(isset($cache_type[$_POST['typeid']])){
+					$this->db->table_name = $this->db->db_tablepre . 'type_deam';
+					$value 	= $cache_type[$_POST['typeid']];
+					$arr_type = $this->db->get_one(array('id'=>$value['type_deam_id']));
+					$this->db->table_name 	= $this->db->db_tablepre . 'wenhua';
+					$count 	= $this->db->count($value['typeid']." in (typeid) ");
+					$value['path'] 		= Hanzi2PinYin(trim($arr_type['name'],'组')).'/'.Hanzi2PinYin($value['name']).'/';
+					$value['lastname'] 	= trim($arr_type['name'],'组');
+					$str = PHPCMS_PATH.$value['path']; 
+					if(ceil($count/10) > 15){
+						$template = "type_list2";
+						$page = 1;
+						do {
+							if($page == 1 ){
+								$file 	= $str.'list_index.html';
+							} else {
+								$file 	= $str.'list_'.$page.'.html';
+							}
+							$html->category_type($value,$page,$file,$template);
+							$page++;
+							$total_number = MAX_PAGES;
+						} while ($page <= MAX_PAGES);
+					} else {
+						$template = "type_list";
+						$file 	= $str.'list_index.html';
+						$html->category_type($value,$page,$file,$template);
+					}
+					$return = array();
+					$return['title'] 	= '【' .$arr_type['name'] . '】'.$value['name'];
+					$return['time'] 	= round(microtime(true) - $time_start,3);
+					$return['url'] 		= APP_PATH . $value['path'] . 'list_index.html';
+					$return['type'] 	= 2;
+					exit(json_encode($return));
+				}
+			}
+		}
+		exit(json_encode(array('msg'=>'出错了','type'=>1)));
+	}
+
+//传统文化 民族类别生成操作
+	public function nation()
+	{
+		set_time_limit(0);
+		$type_arr 		= array(34);
+		$deam_type 		= getcache('type_deam_1','commons');
+		$new_arr 	= array();
+		$cache_type 	= getcache('type_content_1','commons');
+		$html = pc_base::load_app_class('html', 'content');
+		$time 	= time();
+		$new_system = pc_base::load_config('system'); //引入配置文件
+		foreach ($cache_type as $key => $value) {
+			$this->db->table_name 	= $this->db->db_tablepre . 'wenhua';
+			$count 	= $this->db->count($value['typeid']." in (typeid) ");
+			if( in_array($value['type_deam_id'], $type_arr) )
+			{
+				$arr2['typeid'] = $value['typeid'];
+				$arr2['time'] 	= $time;
+				$arr2['key'] 	= md5($time . $new_system['type_with_set_key'] . $value['typeid']);
+				$new_arr[] 	= $arr2;
+			}
+		}
+		if(!empty($new_arr)){
+			include admin::admin_tpl('type_nation_with_day');
+		}
+	}
+
+	public function ctwh_nation_with()
+	{
+		set_time_limit(0);
+		$time_start 	= microtime(true);
+		if(!$_POST['typeid'] || !$_POST['key'] || !$_POST['time'])exit(json_encode(array('msg'=>'出错了1111','type'=>1)));
+		// if( $_POST['time'] + 30*60 > time() ){
+			$new_system = pc_base::load_config('system'); //引入配置文件
+			$key 	= md5($_POST['time'] . $new_system['type_with_set_key'] . $_POST['typeid'] );
+			if($key == $_POST['key']){
+				$html = pc_base::load_app_class('html', 'content');
+				$cache_type 	= getcache('type_content_1','commons');
+				$deam_type 		= getcache('type_deam_1','commons');
+				if(isset($cache_type[$_POST['typeid']])){
+					$this->db->table_name = $this->db->db_tablepre . 'type_deam';
+					$value 	= $cache_type[$_POST['typeid']];
+					$arr_type = $this->db->get_one(array('id'=>$value['type_deam_id']));
+					$this->db->table_name 	= $this->db->db_tablepre . 'wenhua';
+					$count 	= $this->db->count($value['typeid']." in (typeid) ");
+					$value['path'] 	= Hanzi2PinYin(str_replace('组', '', $arr_type['name'])).'/'.Hanzi2PinYin($value['name']).'/';
+					$value['lastname'] 	= str_replace('组', '', $arr_type['name']);
+					$str = PHPCMS_PATH.$value['path']; 
+					$template = "type_nation";
+					$file 	= $str.'index.html';
+					$html->category_type($value,$page,$file,$template);
+					$return = array();
+					$return['title'] 	= '【' .$arr_type['name'] . '】'.$value['name'];
+					$return['time'] 	= round(microtime(true) - $time_start,3);
+					$return['url'] 		= APP_PATH . $value['path'] . 'index.html';
+					$return['type'] 	= 2;
+					exit(json_encode($return));
+				}
+			}
+		// }
+		exit(json_encode(array('msg'=>'出错了','type'=>1)));
+	}
+	public function ctwh_nation_category_with()
+	{
+		set_time_limit(0);
+		$time_start 	= microtime(true);
+		if(!$_POST['typeid'] || !$_POST['key'] || !$_POST['time'])exit(json_encode(array('msg'=>'出错了1111','type'=>1)));
+		$new_system = pc_base::load_config('system'); //引入配置文件
+		$key 	= md5($_POST['time'] . $new_system['type_with_set_key'] . $_POST['typeid'] );
+		if($key == $_POST['key']){
+			$html = pc_base::load_app_class('html', 'content');
+			$cache_type 	= getcache('type_content_1','commons');
+			$deam_type 		= getcache('type_deam_1','commons');
+			if(isset($cache_type[$_POST['typeid']])){
+				$value 	= $cache_type[$_POST['typeid']];
+				$arr_type = $deam_type[$value['type_deam_id']];
+				$this->db->table_name 	= $this->db->db_tablepre . 'wenhua';
+				$count 	= $this->db->count($value['typeid']." in (typeid) ");
+				$value['path'] 	= Hanzi2PinYin(str_replace('组', '', $arr_type['name'])).'/'.Hanzi2PinYin($value['name']).'/'.string_split($cache_type[$_POST['typeid2']]['name']).'_';
+				$value['lastname'] 	= str_replace('组', '', $arr_type['name']);
+				$value['typeid2'] 	= $_POST['typeid2'];
+				$value['typeid2_name'] 	= $cache_type[$_POST['typeid2']]['name'];
+				$str = PHPCMS_PATH.$value['path']; 
+				$template 	= "type_nation_list";
+				$page 		= 1;
+				do {
+					if($page == 1 ){
+						$file 	= $str.'list_index.html';
+					} else {
+						$file 	= $str.'list_'.$page.'.html';
+					}
+					$html->category_type($value,$page,$file,$template);
+					$page++;
+					$total_number = MAX_PAGES;
+				} while ($page <= MAX_PAGES);
+				$return = array();
+				$return['title'] 	= '【' .$arr_type['name'] . '】【'.$value['name'].'】'.$cache_type[$_POST['typeid2']]['name'];
+				$return['time'] 	= round(microtime(true) - $time_start,3);
+				$return['url'] 		= APP_PATH . $value['path'] . 'list_index.html';
+				$return['type'] 	= 2;
+				exit(json_encode($return));
+			}
+		}
+		exit(json_encode(array('msg'=>'出错了','type'=>1)));		
+	}
+
 }
