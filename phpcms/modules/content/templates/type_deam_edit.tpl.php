@@ -23,6 +23,30 @@ include $this->admin_tpl('header','admin');
     <th><?php echo L('description')?>：</th>
     <td class="y-bg"><textarea name="info[description]" maxlength="255" style="width:300px;height:60px;"><?php echo $description;?></textarea></td>
   </tr>
+    <tr>
+    <th>url：</th>
+    <td class="y-bg">
+        <input type="text" name="info[prefix_url]" value="<?php echo $prefix_url; ?>">
+    </td>
+  </tr>
+    <tr>
+    <th>SEO标题：</th>
+    <td class="y-bg">
+        <input type="text" name="info[seotitle]" value="<?php echo $seotitle;?>">
+    </td>
+  </tr>
+  <tr>
+    <th>SEO关键词：</th>
+    <td class="y-bg">
+        <textarea rows="2" cols="20" name="info[seokeywords]" class="inputtext" style="height:80px;width:300px;"><?php echo $seokeywords;?></textarea>
+    </td>
+  </tr>
+  <tr>
+    <th>SEO简介：</th>
+    <td class="y-bg">
+        <textarea rows="2" cols="20" name="info[seodescription]" class="inputtext" style="height:80px;width:300px;"><?php echo $seodescription;?></textarea>
+    </td>
+  </tr>
 </table>
 
 <div class="bk15"></div>

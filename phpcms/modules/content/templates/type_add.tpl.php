@@ -21,8 +21,13 @@ include $this->admin_tpl('header','admin');
   </tr>
     <tr>
     <th><?php echo L('description')?>：</th>
-    <td class="y-bg"><textarea name="info[description]" maxlength="255" style="width:300px;height:60px;"></textarea></td>
+    <td class="y-bg"><textarea name="info[description]" style="width:300px;height:60px;"></textarea></td>
   </tr>
+  <tr>
+        <th>图片：</th>
+        <td><?php echo form::images('info[image]', 'image', $image, 'content');?></td>
+      </tr>
+  <tr>
   </tr>
     <tr>
     <th>所属分组：</th>
@@ -35,6 +40,30 @@ include $this->admin_tpl('header','admin');
                       }
                 ?>
           </select>
+    </td>
+  </tr>
+  <tr>
+    <th>url：</th>
+    <td class="y-bg">
+        <input type="text" name="info[prefix_url]">
+    </td>
+  </tr>
+  <tr>
+    <th>SEO标题：</th>
+    <td class="y-bg">
+        <input type="text" name="info[seotitle]">
+    </td>
+  </tr>
+  <tr>
+    <th>SEO关键词：</th>
+    <td class="y-bg">
+        <textarea rows="2" cols="20" name="info[seokeywords]" class="inputtext" style="height:80px;width:300px;"></textarea>
+    </td>
+  </tr>
+  <tr>
+    <th>SEO简介：</th>
+    <td class="y-bg">
+        <textarea rows="2" cols="20" name="info[seodescription]" class="inputtext" style="height:80px;width:300px;"></textarea>
     </td>
   </tr>
 </table>
