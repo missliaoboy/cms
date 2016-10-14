@@ -339,8 +339,10 @@ class content_model extends model {
 		$html = pc_base::load_app_class('html', 'content');
 		if($urls['content_ishtml']) {
 			//$html->show($urls[1],$urls['data']);
-			$collect_html_curl = pc_base::load_model('collect_html_curl_model');
-			$collect_html_curl->html_now_set(array('modelid'=>$modelid,'id'=>$id));
+			if($urls['content_ishtml'] && $data['status']==99){
+				$collect_html_curl = pc_base::load_model('collect_html_curl_model');
+				$collect_html_curl->html_now_set(array('modelid'=>$modelid,'id'=>$id));
+			}
 		}
 		//在添加和修改内容处定义了 INDEX_HTML
 		// if(defined('INDEX_HTML')) $html->index();

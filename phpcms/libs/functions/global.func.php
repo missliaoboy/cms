@@ -1918,16 +1918,20 @@ function getrealurl($url){
  * @param $content 主内容
  * @param $title   标题
  */
-function collect_content_with($content,$title='')
+function collect_content_with($content,$title='',$url='')
 {
 	if(!$content)return '';
 	$content 	= strtolower($content);	
-	$content 	= preg_replace('/<([^>]+?(?:(a)|(img))) [^>]*>/', '<$1>', $content);
+	$content 	= preg_replace('/<img[^>]+?src=((?![\"|\'])[\S\s]+?) [^>]+?>/', "<img src='$1'>", $content);
+	$content 	= preg_replace('/<((?![a|img])([^>]+?)) [^>]*>/', '<$1>', $content);
+	/*
+	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?) [^>]+?>/', $content,$list);
+	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?)>/', $content,$list2);
+	*/
 	$content 	= preg_replace('/<a[^>]*>|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([\S\s]+?)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[\S\s]+?>|<\/font>|<iframe[\S\s]+?>|<\/iframe>/', '', $content);
-	$content 	= preg_replace('/<img[^>]*src=[\'|\"]([^>]+?)[\'|\"][^>]*>/',"<img src='$1' alt='".$title."' />",$content);
-	return $content;
+	$content 	= preg_replace('/<img[^>]*src=([\'|\"| ])([^>]+?)([\'|\"| ])[^>]*>/',"<img src='".$url."$2' alt='".$title."' />",$content);
+	return trim($content);
 }
-
 /*
 *功能：php多种方式完美实现下载远程图片保存到本地
 *参数：文件url,保存文件名称，使用的下载方式

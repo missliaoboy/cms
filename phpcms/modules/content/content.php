@@ -175,10 +175,7 @@ class content extends admin {
 			if(isset($_GET['reject'])) $status = 0;
 			$this->db->table_name 	= $this->db->db_tablepre . $model[$modelid]['tablename'];
 			$where      = ' status = ' . $status;
-			if($modelid == 16 ){
-				$level 		= isset($_GET['level']) ? intval($_GET['level']) : 0;
-				$where 		.= " AND level = '{$level}' ";
-			}
+
 		if(isset($_GET['start_time']) && $_GET['start_time']) {
 				$start_time = strtotime($_GET['start_time']);
 				$where .= " AND `inputtime` > '$start_time'";

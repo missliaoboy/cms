@@ -1,7 +1,10 @@
 	function typeid($field, $value) {
+		$arr2 = array(); 
 		if(!empty($value) && is_array($value)){
-			array_shift($value);
-			return implode(',',$value);
+			foreach($value as $val){
+				if($val != -99)$arr2[] = $val;
+			}
+			return implode(',',$arr2);
 		}
 		return $value;
 	}

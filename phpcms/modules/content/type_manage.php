@@ -139,7 +139,7 @@ class type_manage extends admin {
 			}
 			$this->category_cache();
 			// $this->cache();//更新类别缓存，按站点
-			showmessage(L('update_success'), '', '', 'type_deam_edit');
+			showmessage(L('update_success'), '', '', 'edit');
 		} else {
 			$this->db->table_name 		= $this->db->db_tablepre . 'type_deam';
 			$show_header = $show_validator = '';

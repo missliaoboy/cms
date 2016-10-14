@@ -41,6 +41,12 @@ CREATE TABLE `lishi_type` (
   KEY `module` (`module`,`parentid`,`siteid`,`listorder`)
 ) ENGINE=MyISAM AUTO_INCREMENT=233 DEFAULT CHARSET=utf8;   //类别表
 
+ALTER TABLE yst_type ADD `seotitle` varchar(255) DEFAULT NULL;
+ALTER TABLE yst_type ADD `seokeywords` varchar(500) DEFAULT NULL;
+ALTER TABLE yst_type ADD `seodescription` varchar(500) DEFAULT NULL;
+ALTER TABLE yst_type ADD `prefix_url` varchar(255) DEFAULT NULL;
+
+
 CREATE TABLE `lishi_type_deam` (
   `id` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
   `siteid` smallint(5) unsigned NOT NULL DEFAULT '0',
@@ -60,3 +66,8 @@ CREATE TABLE `lishi_type_deam` (
   PRIMARY KEY (`id`),
   KEY `module` (`module`,`parentid`,`siteid`,`listorder`)
 ) ENGINE=MyISAM AUTO_INCREMENT=40 DEFAULT CHARSET=utf8; //类别组标
+
+ALTER TABLE yst_type_deam ADD `seotitle` varchar(255) DEFAULT NULL;
+ALTER TABLE yst_type_deam ADD `seokeywords` varchar(500) DEFAULT NULL;
+ALTER TABLE yst_type_deam ADD `seodescription` varchar(500) DEFAULT NULL;
+ALTER TABLE yst_type_deam ADD `prefix_url` varchar(255) DEFAULT NULL;
