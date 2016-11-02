@@ -61,9 +61,21 @@ class type extends admin {
 			}
 		} else {
 			$ids = explode('|', $_REQUEST['id']);
-			if(count($ids) == 1){
+			if(count($ids) >= 1){
+				$modelid = $_REQUEST['modelid'] > 0 ? intval($_REQUEST['modelid']) :1;
 				$c = pc_base::load_model('content_model');
-				$c->set_model($_REQUEST['modelid']);
+				$c->set_model($modelid);
+				$usable_deam_type 	= array();
+				foreach( $this->categorys as $key=>$value )
+				{
+					if($value['modelid'] == $modelid){
+						if($value['usable_deam_type']){
+							$usable = explode(',', $value['usable_deam_type']);
+							$usable_deam_type = array_merge($usable,$usable_deam_type);
+						}
+					}
+				}
+				$usable_deam_type = array_unique($usable_deam_type);
 				$table_name 	= $c->table_name;
 				$c->table_name = $table_name;
 				$arr = $c->get_one(array('id'=>$ids[0]));

@@ -281,7 +281,7 @@ class content extends admin {
 			foreach ($user_admin as $key => $value) {
 				$admin_user[$value['userid']] = $value;
 			}
-			include $this->admin_tpl('content_list');
+			include $this->admin_tpl('content_list2');
 		}
 	}
 	public function add() {
@@ -387,6 +387,8 @@ class content extends admin {
 				if(trim($_POST['info']['title'])=='') showmessage(L('title_is_empty'));
 				$modelid = $this->categorys[$catid]['modelid'];
 				$this->db->set_model($modelid);
+				$status_res = $this->db->get_one(array('id'=>$id));
+				$_POST['info']['status'] 		= $status_res['status'];
 				$this->db->edit_content($_POST['info'],$id);
 				$this->admin_log('修改',$id);
 				if(isset($_POST['dosubmit'])) {
@@ -662,6 +664,119 @@ class content extends admin {
 			exit(json_encode($return));
 		}
 	}
+	/**
+	 * 自定义过审内容
+	 */
+	public function pass2 () {
+		set_time_limit(0);
+		$admin_username = param::get_cookie('admin_username');
+		$modelid 		= isset($_REQUEST['modelid']) ? intval($_REQUEST['modelid']) : '';
+		if(!$modelid)showmessage(L('missing_part_parameters'));
+		$this->db->set_model($modelid);
+		$table_name 		= $this->db->table_name;
+		if(isset($_POST['ids']) && !empty($_POST['ids']))
+		{
+			foreach ($_POST['ids'] as $key => $id) {
+				$this->db->table_name = $table_name;
+				$r 		= $this->db->get_one(array('id'=>$id));
+				if(empty($r))continue;
+				$catid 		= $r['catid'];
+				$category = $this->categorys[$catid];
+				$setting = string2array($category['setting']);
+				$workflowid = $setting['workflowid'];
+				//只有存在工作流才需要审核
+				if($workflowid) {
+					$steps = intval($_GET['steps']);
+					//检查当前用户有没有当前工作流的操作权限
+					$workflows = getcache('workflow_'.$this->siteid,'commons');
+					$workflows = $workflows[$workflowid];
+					$workflows_setting = string2array($workflows['setting']);
+					//将有权限的级别放到新数组中
+					$admin_privs = array();
+					foreach($workflows_setting as $_k=>$_v) {
+						if(empty($_v)) continue;
+						foreach($_v as $_value) {
+							if($_value==$admin_username) $admin_privs[$_k] = $_k;
+						}
+					}
+					//print_r($admin_privs);exit;
+					if($_SESSION['roleid']!=1 && $steps && !in_array($steps,$admin_privs)) showmessage(L('permission_to_operate'));
+					//更改内容状态
+						if(isset($_GET['reject'])) {
+						//退稿
+							$status = 0;
+						} else {
+							//工作流审核级别
+							$workflow_steps = $workflows['steps'];
+							if($workflow_steps>$steps) {
+								$status = $steps+1;
+							} else {
+								$status = 99;
+							}
+						}
+
+						$this->db->search_db = pc_base::load_model('search_model');
+						//审核通过，检查投稿奖励或扣除积分
+						if ($status==99) {
+							$html = pc_base::load_app_class('html', 'content');
+							$this->url = pc_base::load_app_class('url', 'content');
+							$member_db = pc_base::load_model('member_model');
+							$this->db->set_model($modelid);
+							$content_info = $this->db->get_content($catid,$id);
+
+							$memberinfo = $member_db->get_one(array('username'=>$content_info['username']), 'userid, username');
+							$flag = $catid.'_'.$id;
+							if($setting['presentpoint']>0) {
+								pc_base::load_app_class('receipts','pay',0);
+								receipts::point($setting['presentpoint'],$memberinfo['userid'], $memberinfo['username'], $flag,'selfincome',L('contribute_add_point'),$memberinfo['username']);
+							} else {
+								pc_base::load_app_class('spend','pay',0);
+								spend::point($setting['presentpoint'], L('contribute_del_point'), $memberinfo['userid'], $memberinfo['username'], '', '', $flag);
+							}
+							if($setting['content_ishtml'] == '1'){//栏目有静态配置
+									$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'], '',$content_info,'add');					
+									$urls['data']['updatetime'] = time();
+									$html->show($urls[1],$urls['data'],0);
+									$this->db->set_model($modelid);
+									$newsRes = $this->db->update(array("url"=>$urls[0]),array("id"=>$id));							
+								}
+							//更新到全站搜索
+							$inputinfo = '';
+							$inputinfo['system'] = $content_info;
+							$inputinfo['system']['status'] = $status;
+							$this->db->set_model($modelid);
+							$this->db->search_api($id,$inputinfo);
+						}
+						if(isset($_GET['ajax_preview'])) {
+							$_POST['ids'] = $_GET['id'];
+						}
+						if($steps > 0){
+							$this->admin_log($steps.'审审核通过',$id);
+							//审核通过人员记录
+							$user_check 	= $r['user_check'];
+							if(empty($user_check)){
+								$str_check = array();
+								$str_check[$steps] = $_SESSION['userid'];
+								$user_check 	= array2string($str_check);
+							} else {
+								$str_check = string2array($user_check);
+								$str_check[$steps] = $_SESSION['userid'];
+								$user_check = array2string($str_check);
+							}
+							$this->db->set_model($modelid);
+							$this->db->update(array('user_check'=>$user_check),array('id'=>$id));
+						} else {
+							$this->admin_log('退稿',$id);
+						}
+						$this->db->set_model($modelid);
+						$this->db->status(array($id),$status);
+
+					}
+				}
+			showmessage(L('operation_success'),HTTP_REFERER);
+		}
+	}
+
 	/**
 	 * 排序
 	 */

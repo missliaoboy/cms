@@ -94,7 +94,17 @@ include $this->admin_tpl('header');?>
 	  <input type='radio' name='info[ismenu]' value='1' <?php if($ismenu) echo 'checked';?>> <?php echo L('yes');?>&nbsp;&nbsp;&nbsp;&nbsp;
 	  <input type='radio' name='info[ismenu]' value='0' <?php if(!$ismenu) echo 'checked';?>> <?php echo L('no');?></td>
     </tr>
-
+    <tr>
+     <th>是否加密：</th>
+      <td>
+	  <input type='radio' name='info[encrypt]' value='1' <?php if($encrypt) echo 'checked';?> > <?php echo L('yes');?>&nbsp;&nbsp;&nbsp;&nbsp;
+	  <input type='radio' name='info[encrypt]' value='0' <?php if(!$encrypt) echo 'checked';?> > <?php echo L('no');?></td>
+    </tr>
+    <tr>
+     <th>加密字符长度：</th>
+      <td>
+	  <input type='text' name='info[encrypt_long]' value="<?php echo $encrypt_long; ?>" /> </td>
+    </tr>
 </table>
 
 </div>

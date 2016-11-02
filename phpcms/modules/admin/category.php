@@ -803,7 +803,8 @@ class category extends admin {
 				if($setting['repeatchargedays']<1) $setting['repeatchargedays'] = 1;
 				$info['sethtml'] = $post_setting[$catid]['create_to_html_root'];
 				$info['setting'] = array2string($setting);
-				
+				$info['encrypt'] = $_POST['encrypt'][$catid];
+				$info['encrypt_long'] = $_POST['encrypt_long'][$catid];
 				$info['module'] = 'content';
 				$catname = CHARSET == 'gbk' ? $info['catname'] : iconv('utf-8','gbk',$info['catname']);
 				$letters = gbk_to_pinyin($catname);

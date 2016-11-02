@@ -29,7 +29,7 @@
 					if($arr2['type'] != 1){
 						$arr['type'] 	= 2;
 						$arr['value'] 	= $value;
-						$arr['id'] 		= $arr['id'];	
+						$arr['id'] 		= $arr2['id'];	
 						$this->url[] 	= $arr; 
 					}else{
 						continue;

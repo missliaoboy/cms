@@ -154,6 +154,34 @@ include $this->admin_tpl('header');?>
 		}
 	?>
 	 </tr>
+
+	<tr>
+	 <?php
+		foreach($batch_array as $catid=>$cat) {
+	?>
+		<td><b>是否加密：</b><br>
+		<input boxid="encrypt" catid="<?php echo $catid;?>" type='radio' name='encrypt[<?php echo $catid;?>]' value='1' <?php if($cat['encrypt']) echo 'checked';?> onClick="change_radio(event,'encrypt',1,'show');urlrule('show',1,<?php echo $catid;?>)"> <?php echo L('yes');?>&nbsp;&nbsp;&nbsp;&nbsp;
+	  <input boxid="encrypt" catid="<?php echo $catid;?>" type='radio' name='encrypt[<?php echo $catid;?>]' value='0' <?php if(!$cat['encrypt']) echo 'checked';?>  onClick="change_radio(event,'encrypt',0,'show');urlrule('show',0,<?php echo $catid;?>)"> <?php echo L('no');?>
+	  </td>
+	<?php
+		}
+	?>
+	 </tr>
+	<tr>
+	 <?php
+		foreach($batch_array as $catid=>$cat) {
+			echo '<pre>';
+			print_r($cat);
+	?>
+		<td>
+			<b>加密字符长度：</b><br>
+			<input type='text' name='encrypt_long[<?php echo $catid;?>]' value="<?php echo $cat['encrypt_long']; ?>" />
+	  	</td>
+	<?php
+		}
+	?>
+	 </tr>
+
 	 <tr>
 	 <?php
 		foreach($batch_array as $catid=>$cat) {

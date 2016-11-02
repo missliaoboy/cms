@@ -2151,39 +2151,28 @@ function pages_type_list($num, $curr_page, $perpage = 20, $urlrule = '', $array 
  * Function Hanzi2PinYin
  * 汉字转拼音，将汉字转为拼音
  * @param $str  将要转化的汉字 
+ * @param $type  false不会带有音标 true带有音标 
  */
-function Hanzi2PinYin($str){
-    global $pinyins;
-    $str = iconv("UTF-8","GBK",$str);
+function Hanzi2PinYin($str,$type=false){
     $res = '';
     $str = trim($str);
-    $slen = strlen($str);
-    if($slen<2){
-        return $str;
-    }
-    if(count($pinyins)==0){
-        $fp = fopen(PHPCMS_PATH .'/caches/configs/pinyin.dat','r');
-        while(!feof($fp)){
-            $line = trim(fgets($fp));
-            $pinyins[$line[0].$line[1]] = substr($line,3,strlen($line)-3);
-        }
-        fclose($fp);
+    $slen = mb_strlen($str,'utf-8');
+    if($type){
+		$pinyins2 = pc_base::load_config('pinyin');
+    } else {
+		$pinyins2 = pc_base::load_config('pinyin2');
     }
     for($i=0;$i<$slen;$i++){
-        if(ord($str[$i])>0x80){
-            $c = $str[$i].$str[$i+1];
-            $i++;
-            if(isset($pinyins[$c])){
-                $res .= $pinyins[$c];
+        $str1 = mb_substr($str,$i,1,'utf-8');
+        if(ord($str1)>0x80){
+            if(isset($pinyins2[$str1])){
+                $res .= $pinyins2[$str1];
             }else{
-                //$res .= "_";
+            	$res .= $str1;
             }
-        }else if( eregi("[a-z0-9]",$str[$i]) ){
-            $res .= $str[$i];
-        }
-        else{
-            //$res .= "_";
-        }
+        }else{
+            $res .= $str1;
+        } 
     }
     return $res;
 }

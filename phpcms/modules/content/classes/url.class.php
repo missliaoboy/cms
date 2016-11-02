@@ -69,6 +69,13 @@ class url{
 			if(!empty($prefix) || isset($data['prefix']) && !empty($data['prefix'])){
 				$new_id = empty($prefix) ? $data['prefix'] : $prefix;
 			}
+			//如果没有自定义url，进行URL加密,数据库模型主表必须有 prefix 字段
+			if( empty($prefix) && empty($data['prefix']) && $category['encrypt'] && $category['encrypt_long'] > 0 ){
+				$new_id 		= $id.create_randomstr($category['encrypt_long']);
+				$content_model 	= pc_base::load_model('content_model');
+				$content_model->set_model($category['modelid']);
+				$content_model->update(array('prefix'=>$new_id),array('id'=>$id));
+			}
 			$urls = str_replace(array('{$categorydir}','{$catdir}','{$year}','{$month}','{$day}','{$catid}','{$id}','{$prefix}','{$page}'),array($categorydir,$catdir,$year,$month,$day,$catid,$new_id,$prefix,$page),$urlrule);
 			$create_to_html_root = $category['create_to_html_root'];
 			

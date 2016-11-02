@@ -71,3 +71,40 @@ ALTER TABLE yst_type_deam ADD `seotitle` varchar(255) DEFAULT NULL;
 ALTER TABLE yst_type_deam ADD `seokeywords` varchar(500) DEFAULT NULL;
 ALTER TABLE yst_type_deam ADD `seodescription` varchar(500) DEFAULT NULL;
 ALTER TABLE yst_type_deam ADD `prefix_url` varchar(255) DEFAULT NULL;
+
+<!-- 2016/10/10-->
+ALTER TABLE yst_category ADD `encrypt_long` tinyint(1) NOT NULL DEFAULT '0' COMMENT '加密长度';
+ALTER TABLE yst_category ADD `encrypt` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否加密，0不加密';
+CREATE TABLE `yst_category` (
+  `catid` smallint(5) unsigned NOT NULL AUTO_INCREMENT,
+  `siteid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `module` varchar(15) NOT NULL,
+  `type` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `modelid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `parentid` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `arrparentid` varchar(255) NOT NULL,
+  `child` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `arrchildid` mediumtext NOT NULL,
+  `catname` varchar(30) NOT NULL,
+  `style` varchar(5) NOT NULL,
+  `image` varchar(100) NOT NULL,
+  `description` mediumtext NOT NULL,
+  `parentdir` varchar(100) NOT NULL,
+  `catdir` varchar(30) NOT NULL,
+  `url` varchar(100) NOT NULL,
+  `items` mediumint(8) unsigned NOT NULL DEFAULT '0',
+  `hits` int(10) unsigned NOT NULL DEFAULT '0',
+  `setting` mediumtext NOT NULL,
+  `listorder` smallint(5) unsigned NOT NULL DEFAULT '0',
+  `ismenu` tinyint(1) unsigned NOT NULL DEFAULT '1',
+  `sethtml` tinyint(1) unsigned NOT NULL DEFAULT '0',
+  `letter` varchar(30) NOT NULL,
+  `usable_type` varchar(255) NOT NULL,
+  `usable_deam_type` varchar(255) DEFAULT NULL,
+  `encrypt_long` tinyint(1) NOT NULL DEFAULT '0' COMMENT '加密长度',
+  `encrypt` tinyint(1) NOT NULL DEFAULT '0' COMMENT '是否加密，0不加密',
+  PRIMARY KEY (`catid`),
+  KEY `module` (`module`,`parentid`,`listorder`,`catid`),
+  KEY `siteid` (`siteid`,`type`)
+) ENGINE=MyISAM AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
