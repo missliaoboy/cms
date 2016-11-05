@@ -1908,7 +1908,8 @@ function getrealurl($url){
              return $header['Location']; 
         } 
     }else { 
-        return $url; 
+    	if (strpos($header[0],'200'))return $url; 
+    	return false;
     } 
 }
 
@@ -1928,8 +1929,10 @@ function collect_content_with($content,$title='',$url='')
 	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?) [^>]+?>/', $content,$list);
 	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?)>/', $content,$list2);
 	*/
-	$content 	= preg_replace('/<a[^>]*>|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([\S\s]+?)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[\S\s]+?>|<\/font>|<iframe[\S\s]+?>|<\/iframe>/', '', $content);
+	$content 	= preg_replace('/<a[^>]*>|　　|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([^>]*)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[^>]*>|<\/font>|<iframe[^>]*>|<\/iframe>|<!--[\S\s]+?-->/', '', $content);
 	$content 	= preg_replace('/<img[^>]*src=([\'|\"| ])([^>]+?)([\'|\"| ])[^>]*>/',"<img src='".$url."$2' alt='".$title."' />",$content);
+	$content 	= preg_replace('/<img[^>]*src=([\'|\"| ])\.\.([^>]+?)([\'|\"| ])[^>]*>/',"",$content);
+	$content 	= str_replace(array("\n","\r\n","\r","  "), '', $content);
 	return trim($content);
 }
 /*
@@ -1983,7 +1986,60 @@ function collect_getImage($url,$type=0,$host=''){
 	}
 }
 
+function getImage($url,$host='',$path,$type=0){
+    if($url==''){return '';}
+    $arr 	= parse_url($url);
+    $arr2 	= explode('/', $arr['path']);
+    if(empty($arr['host']))
+    {
+    	$host_arr   = parse_url($host);
+		$http 	= $host_arr['scheme'] . '://' . $host_arr['host'];
+    	$str 	= substr($url,0,1);
+    	if($str == '/'){
+    		$url = trim($host,'/').'/'.trim($url,'/');
+    	} else {
+    		$substr_end 	= strripos($host, '/');
+    		$url 	= substr($host, 0,$substr_end+1) . $url;
+    	}
+    }
+    if( $arr['host'] && strpos(APP_PATH,$arr['host']) !== false ){
+    	return $url;
+    }
+    $path 	= $path.end($arr2);
 
+    if(!is_dir(dirname(PHPCMS_PATH.$path))){
+        mkdir(dirname(PHPCMS_PATH.$path),0777,true);
+    }
+    //文件保存路径
+    if($type){
+		$ch=curl_init();
+		$timeout=5;
+		curl_setopt($ch,CURLOPT_URL,$url);
+		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+		$img=curl_exec($ch);
+		curl_close($ch);
+    }else{
+		ob_start();
+		readfile($url);
+		$img=ob_get_contents();
+		ob_end_clean();
+    }
+    //文件大小
+	$size=strlen($img);
+	if( $size > 0 ){
+        $fp2=@fopen(PHPCMS_PATH.$path,'x+');
+        fwrite($fp2,$img);
+        fclose($fp2);
+        if( is_file(PHPCMS_PATH.$path) ){
+			watermark(PHPCMS_PATH.$path);  //打水印
+        	return trim(APP_PATH,'/').'/'.trim($path,'/');
+        }
+        return '';
+	} else {
+		return '';        		
+	}
+}
 /**
  * Function collect_content_img
  * 采集文章内容图片 

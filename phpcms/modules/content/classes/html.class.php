@@ -24,6 +24,7 @@ class html {
 	 */
 	public function show($file, $data = '', $array_merge = 1,$action = 'add',$upgrade = 0) {
 		if($upgrade) $file = '/'.ltrim($file,WEB_PATH);
+		$file_url = APP_PATH.ltrim($file,'/');
 		$allow_visitor = 1;
 		$id = $data['id'];
 		if($array_merge) {
@@ -374,6 +375,7 @@ class html {
 		if ($copyjs && !file_exists($dir.'/js.html')) {
 			@copy(PC_PATH.'modules/content/templates/js.html', $dir.'/js.html');
 		}
+		$data 	= $this->compress_html($data);
 		$strlen = file_put_contents($file, $data);
 		@chmod($file,0777);
 		if(!is_writable($file)) {
@@ -383,6 +385,20 @@ class html {
 		return $strlen;
 	}
 
+
+	/**
+	* 压缩html : 清除换行符,清除制表符,去掉注释标记
+	* @param $string
+	* @return压缩后的$string
+	* */
+	function compress_html($string){
+		$string 	= str_replace("\r\n",'',$string);//清除换行符
+		$string 	= str_replace("\n",'',$string);//清除换行符
+		$string 	= str_replace("\t",'',$string);//清除制表符
+		$pattern 	= array( "/> *([^ ]*) *</","/[\s]+/","/<!--[^!]*-->/", "'/\*[^*]*\*/'" );
+		$replace 	= array ( ">\\1<" , " " , ""  ,"" );
+		return preg_replace($pattern, $replace, $string);
+	} 
 	/**
 	 * 设置当前站点id
 	 */

@@ -45,6 +45,7 @@
 		ids.num 	= "<?php echo $value['num']; ?>";
 		ids.catid 	= "<?php echo $value['catid']; ?>";
 		ids.modelid = "<?php echo $value['modelid']; ?>";
+		ids.key = "<?php echo $value['key']; ?>";
 		ids2[<?php echo $key; ?>] = ids;
 		++j;
 	<?php	} ?>
@@ -52,13 +53,12 @@
 	function get_catid_id()
 	{
 		var time 	= "<?php echo $time; ?>";
-		var key 	= "<?php echo md5($new_system['with_set_key'].$time); ?>";
 		for( var i in ids2){
 			$.ajax({
 				url		: "/index.php?m=content&c=with_set&a=get_catid_id",
 				type 	: "post",
 				async 	: false,
-				data 	: {catid:ids2[i].catid,num:ids2[i].num,time:time,key:key,modelid:ids2[i].modelid},
+				data 	: {catid:ids2[i].catid,num:ids2[i].num,time:time,key:ids2[i].key,modelid:ids2[i].modelid},
 				dataType: 'json',
 				success	: function(data){
 					--j;
@@ -69,6 +69,7 @@
 								var e_arr = [];
 								e_arr['modelid'] = ids2[i].modelid;
 								e_arr['catid'] 	 = ids2[i].catid;
+								e_arr['key'] 	 = ids2[i].key;
 								e_arr['id'] 	 = data[i2].id;
 								arr.push(e_arr); 
 							}
@@ -98,10 +99,10 @@
 			e_arr2.id.push(data[0].id);
 			data.shift();
 			$.ajax({
-				url:"/index.php?m=content&c=content&a=pass&catid="+e_arr2.catid+"&steps=99&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
+				url:"/index.php?m=content&c=content&a=pass&catid="+e_arr2.catid+"&steps=2&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
 				type:'post',
 				// async 	: false,
-				data:{catid:e_arr2.catid,modelid:e_arr2.modelid,ids:e_arr2.id,'token':'www.jianglishi.cn','site_type':1},
+				data:{catid:e_arr2.catid,modelid:e_arr2.modelid,ids:e_arr2.id,'token':"<?php echo $new_system['with_set_key']; ?>",'site_type':1},
 				dataType:'json',
 				success:function(e)
 				{

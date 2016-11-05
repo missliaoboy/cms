@@ -575,7 +575,8 @@ class content extends admin {
 					$member_db = pc_base::load_model('member_model');
 					if (isset($_POST['ids']) && !empty($_POST['ids'])) {
 						foreach ($_POST['ids'] as $id) {
-							if( !isset($_POST['token']) && $_POST['token'] != TOKEN_AJAX_TEMPLATE ){
+							$new_system = pc_base::load_config('system'); //引入配置文件
+							if( !isset($_POST['token']) && $_POST['token'] != $new_system['with_set_key'] ){
 								$arr_ids 	= $_POST['ids'];
 								include $this->admin_tpl('html_set');
 								exit;	
@@ -594,9 +595,10 @@ class content extends admin {
 								$return['title'] 	= $content_info['title'];
   								$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'],$content_info['prefix'],$content_info,'add');
   								$return['url'] 		= $urls[0];
+  								$urls['data']['updatetime'] = time();
    								$html->show($urls[1],$urls['data'],0);
    								$this->db->set_model($modelid);
-   								$newsRes = $this->db->update(array('updatetime'=>time()),array("id"=>$id));
+   								$newsRes = $this->db->update(array('updatetime'=>$urls['data']['updatetime'] ),array("id"=>$id));
  							}
 							//更新到全站搜索
 							$inputinfo = '';

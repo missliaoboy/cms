@@ -1,8 +1,6 @@
 <?php
 	//baidu sitemap提交处理类
 	defined('IN_PHPCMS') or exit('No permission resources.');
-	define('UPLOAD_PATH_HOST', 'http://data2.jianglishi.cn');
-	define('UPLOAD_PATH', '/data1/webserver/web/pic.jianglishi.cn/');
 
 	pc_base::load_sys_class('model', '', 0);
 	class baidu_sitemap_model extends model
