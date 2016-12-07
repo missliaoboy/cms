@@ -458,12 +458,18 @@ class create_html extends admin {
 			// 	$j++;
 			// 	$total_number = isset($total_number) ? $total_number : PAGES;
 			// } while ($j <= $total_number && $j < $pagesize);
+			$page_max = 0;
+			if( $this->categorys[$catid]['child'] == 1 )
+			{
+				$page_max = 1;
+			}
 			do {
 				$this->html->category($catid,$page);
+				if($page_max == 1)break;
 				$page++;
 				$j++;
 				$total_number = MAX_PAGES;
-			} while ($page <= MAX_PAGES && $j < $pagesize);
+			} while ($page <= MAX_PAGES && $j <= $pagesize && $page_max < 1);
 			if($page <= $total_number) {
 				$endpage = intval($page+$pagesize);
 				$message = L('updating').$this->categorys[$catid]['catname'].L('start_to_end_id',array('page'=>$page,'endpage'=>$endpage));

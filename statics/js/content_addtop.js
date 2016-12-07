@@ -249,8 +249,8 @@ function ChangeInput (objSelect,objInput) {
 //移除相关文章
 function remove_relation(sid,id) {
 	var relation_ids = $('#relation').val();
+	$('#'+sid).remove();
 	if(relation_ids !='' ) {
-		$('#'+sid).remove();
 		var r_arr = relation_ids.split(',');
 		var newrelation_ids = '';
 		$.each(r_arr, function(i, n){
@@ -267,7 +267,9 @@ function remove_relation(sid,id) {
 }
 //显示相关文章
 function show_relation(modelid,id) {
-$.getJSON("?m=content&c=content&a=public_getjson_ids&modelid="+modelid+"&id="+id, function(json){
+	var relation_ids = $('#relation').val();
+
+	$.getJSON("?m=content&c=content&a=public_getjson_ids&modelid="+modelid+"&id="+id+"&relation="+relation_ids, function(json){
 	var newrelation_ids = '';
 	if(json==null) {
 		alert('没有添加相关文章');
@@ -278,7 +280,7 @@ $.getJSON("?m=content&c=content&a=public_getjson_ids&modelid="+modelid+"&id="+id
 	});
 
 	$('#relation_text').html(newrelation_ids);
-}); 
+	}); 
 }
 //移除ID
 function remove_id(id) {

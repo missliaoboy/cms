@@ -36,7 +36,8 @@ function openwinx(url,name,w,h) {
 function omnipotent(id,linkurl,title,close_type,w,h) {
 	if(!w) w=700;
 	if(!h) h=500;
-	art.dialog({id:id,iframe:linkurl, title:title, width:w, height:h, lock:true},
+	var relation = $('#relation').val();
+	art.dialog({id:id,iframe:linkurl+"&relation="+relation, title:title, width:w, height:h, lock:true},
 	function(){
 		if(close_type==1) {
 			art.dialog({id:id}).close()

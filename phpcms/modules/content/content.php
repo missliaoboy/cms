@@ -253,7 +253,7 @@ class content extends admin {
 				if( $type_name == 'hits' ){
 					$datas = $this->db->listinfo2($where," h.views $sort ",$_GET['page']);
 				} else {
-					$datas = $this->db->listinfo($where," $type_name $sort ",$_GET['page']);
+					$datas = $this->db->listinfo2($where," $type_name $sort ",$_GET['page']);
 				}
 			} else {
 				$datas = $this->db->listinfo($where,'id desc',$_GET['page']);
@@ -464,6 +464,7 @@ class content extends admin {
 			$this->url = pc_base::load_app_class('url', 'content');
 			
 			foreach($_POST['ids'] as $id) {
+				$this->db->set_model($modelid);
 				$r = $this->db->get_one(array('id'=>$id));
 				if($content_ishtml && !$r['islink']) {
 					$urls = $this->url->show($id, 0, $r['catid'], $r['inputtime'],$r['prefix']);
@@ -598,7 +599,7 @@ class content extends admin {
   								$urls['data']['updatetime'] = time();
    								$html->show($urls[1],$urls['data'],0);
    								$this->db->set_model($modelid);
-   								$newsRes = $this->db->update(array('updatetime'=>$urls['data']['updatetime'] ),array("id"=>$id));
+   								$newsRes = $this->db->update(array('updatetime'=>$urls['data']['updatetime'],'url'=>$urls[0]),array("id"=>$id));
  							}
 							//更新到全站搜索
 							$inputinfo = '';
@@ -622,9 +623,10 @@ class content extends admin {
 							$return['title'] 	= $content_info['title'];
 							$urls = $this->url->show($id, 0, $content_info['catid'], $content_info['inputtime'], $content_info['prefix'],$content_info,'add');
   							$return['url'] 		= $urls[0];
+  							$urls['data']['updatetime'] = time();
 							$html->show($urls[1],$urls['data'],0);
 							$this->db->set_model($modelid);
-	   						$newsRes = $this->db->update(array('updatetime'=>time()),array("id"=>$id));
+	   						$newsRes = $this->db->update(array('updatetime'=>$urls['data']['updatetime']),array("id"=>$id));
 						}
 						//更新到全站搜索
 						$inputinfo = '';
@@ -666,6 +668,7 @@ class content extends admin {
 			exit(json_encode($return));
 		}
 	}
+
 	/**
 	 * 自定义过审内容
 	 */
@@ -740,7 +743,7 @@ class content extends admin {
 									$urls['data']['updatetime'] = time();
 									$html->show($urls[1],$urls['data'],0);
 									$this->db->set_model($modelid);
-									$newsRes = $this->db->update(array("url"=>$urls[0]),array("id"=>$id));							
+									$newsRes = $this->db->update(array("url"=>$urls[0],'updatetime'=>$urls['data']['updatetime']),array("id"=>$id));							
 								}
 							//更新到全站搜索
 							$inputinfo = '';
@@ -778,7 +781,6 @@ class content extends admin {
 			showmessage(L('operation_success'),HTTP_REFERER);
 		}
 	}
-
 	/**
 	 * 排序
 	 */
@@ -951,8 +953,22 @@ class content extends admin {
 			showmessage(L('please_select_modelid'));
 		} else {
 			$page = intval($_GET['page']);
-			
+			$id   = intval($_GET['id']); //获取到的主键id
 			$modelid = intval($_GET['modelid']);
+			$this->db->set_model($modelid);
+			$relation2 = $_GET['relation'];
+			$checkedall 	= $arr2	= array();
+			if( $relation2  ){
+				$relation 	= explode(',', $relation2);
+				foreach ($relation as $key => $value) {
+					if(!$value)continue;
+					$arr4 	= explode('_', $value);
+					$arr2[$arr4[0]][] = $arr4[1];
+				}
+			}
+			if(isset($arr2[$modelid]) && $arr2[$modelid]){
+				$checkedall = $arr2[$modelid];
+			}
 			$this->db->set_model($modelid);
 			$where = '';
 			if($_GET['catid']) {
@@ -980,13 +996,17 @@ class content extends admin {
 	public function public_getjson_ids() {
 		$model_cache = getcache('model','commons');
 		$modelid = intval($_GET['modelid']);
-		$id = intval($_GET['id']);
-		$this->db->set_model($modelid);
-		$tablename = $this->db->table_name;
-		$this->db->table_name = $tablename.'_data';
-		$r = $this->db->get_one(array('id'=>$id),'relation');
-		if($r['relation']) {
-			$relation 	= explode(',',$r['relation']);
+		$relation2 = $_GET['relation'];
+		if( !$relation2 ){
+			$id = intval($_GET['id']);
+			$this->db->set_model($modelid);
+			$tablename = $this->db->table_name;
+			$this->db->table_name = $tablename.'_data';
+			$r = $this->db->get_one(array('id'=>$id),'relation');
+			$relation2 = $r['relation'];
+		}
+		if($relation2) {
+			$relation 	= explode(',',$relation2);
 			$infos 	= array();
 			foreach ($relation as $key => $value) {
 				if(empty($value))continue;
@@ -1008,29 +1028,6 @@ class content extends admin {
 				exit;
 			}
 		}
-	/*
-		$modelid = intval($_GET['modelid']);
-		$id = intval($_GET['id']);
-		$this->db->set_model($modelid);
-		$tablename = $this->db->table_name;
-		$this->db->table_name = $tablename.'_data';
-		$r = $this->db->get_one(array('id'=>$id),'relation');
-
-		if($r['relation']) {
-			$relation = str_replace('|', ',', $r['relation']);
-			$relation = trim($relation,',');
-			$where = "id IN($relation)";
-			$infos = array();
-			$this->db->table_name = $tablename;
-			$datas = $this->db->select($where,'id,title');
-			foreach($datas as $_v) {
-				$_v['sid'] = 'v'.$_v['id'];
-				if(strtolower(CHARSET)=='gbk') $_v['title'] = iconv('gbk', 'utf-8', $_v['title']);
-				$infos[] = $_v;
-			}
-			echo json_encode($infos);
-		}
-	*/
 	}
 
 	//文章预览

@@ -44,7 +44,7 @@ include $this->admin_tpl('header','admin');
         </thead>
     <tbody>
 	<?php foreach($infos as $r) { ?>
-	<tr onclick="select_list(this,'<?php echo safe_replace($r['title']);?>',<?php echo $r['id'];?>)" class="cu" title="<?php echo L('click_to_select');?>">
+	<tr <?php if(in_array($r['id'], $checkedall)){ echo "class='line_ff9966'"; } ?> onclick="select_list(this,'<?php echo safe_replace($r['title']);?>',<?php echo $r['id'];?>)" class="cu" title="<?php echo L('click_to_select');?>">
 		<td align='left' ><?php echo $r['title'];?></td>
 		<td align='center'><?php echo $this->categorys[$r['catid']]['catname'];?></td>
 		<td align='center'><?php echo format::date($r['inputtime']);?></td>
@@ -67,19 +67,20 @@ include $this->admin_tpl('header','admin');
 <!--
 	function select_list(obj,title,id) {
 		var relation_ids = window.top.$('#relation').val();
-		var sid = 'v<?php echo $modelid;?>'+id;
+		var sid = '<?php echo $modelid;?>_'+id;
 		if($(obj).attr('class')=='line_ff9966' || $(obj).attr('class')==null) {
+
 			$(obj).attr('class','line_fbffe4');
 			window.top.$('#'+sid).remove();
 			if(relation_ids !='' ) {
-				var r_arr = relation_ids.split('|');
+				var r_arr = relation_ids.split(',');
 				var newrelation_ids = '';
 				$.each(r_arr, function(i, n){
-					if(n!=id) {
+					if(n!=sid) {
 						if(i==0) {
 							newrelation_ids = n;
 						} else {
-						 newrelation_ids = newrelation_ids+'|'+n;
+						 newrelation_ids = newrelation_ids+','+n;
 						}
 					}
 				});
@@ -90,9 +91,9 @@ include $this->admin_tpl('header','admin');
 			var str = "<li id='"+sid+"'>·<span>"+title+"</span><a href='javascript:;' class='close' onclick=\"remove_relation('"+sid+"',"+id+")\"></a></li>";
 			window.top.$('#relation_text').append(str);
 			if(relation_ids =='' ) {
-				window.top.$('#relation').val(id);
+				window.top.$('#relation').val(sid);
 			} else {
-				relation_ids = relation_ids+'|'+id;
+				relation_ids = relation_ids+','+sid;
 				window.top.$('#relation').val(relation_ids);
 			}
 		}

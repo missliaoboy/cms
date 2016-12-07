@@ -1925,14 +1925,12 @@ function collect_content_with($content,$title='',$url='')
 	$content 	= strtolower($content);	
 	$content 	= preg_replace('/<img[^>]+?src=((?![\"|\'])[\S\s]+?) [^>]+?>/', "<img src='$1'>", $content);
 	$content 	= preg_replace('/<((?![a|img])([^>]+?)) [^>]*>/', '<$1>', $content);
-	/*
-	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?) [^>]+?>/', $content,$list);
-	preg_match('/<img[^>]+?src=((?![\"|\'])[\S\s]+?)>/', $content,$list2);
-	*/
-	$content 	= preg_replace('/<a[^>]*>|　　|<\/a>|<div[^>]*>|<\/div>|<span[^>]*>|<\/span>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([^>]*)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<font[^>]*>|<\/font>|<iframe[^>]*>|<\/iframe>|<!--[\S\s]+?-->/', '', $content);
+	$content 	= preg_replace('/<a[^>]*>|<font[^>]*>|<\/font>|　　|<\/a>|<div[^>]*>|<\/div>|<tbody[^>]*>|<\/tbody>|<table[^>]*>|<\/table>|<body[^>]*>|<\/body>|<script[^>]*>([^>]*)<\/script>|<script[^>]*><\/script>|<td[^>]*>|<\/td>|<tr[^>]*>|<\/tr>|<bb[^>]*>|<\/bb>|<ul[^>]*>|<\/ul>|<li[^>]*>|<\/li>|<iframe[^>]*>|<\/iframe>|<!--[\S\s]+?-->/', '', $content);
+	$content 	= preg_replace("/<span><\/span>|<font><\/font>|<font>\s+<\/font>/", '', $content);
+	$content 	= preg_replace("/<br[^>]*>/", "\r\n", $content);
+	$content 	= preg_replace("/(\r\n){2,}/", '', $content);
 	$content 	= preg_replace('/<img[^>]*src=([\'|\"| ])([^>]+?)([\'|\"| ])[^>]*>/',"<img src='".$url."$2' alt='".$title."' />",$content);
 	$content 	= preg_replace('/<img[^>]*src=([\'|\"| ])\.\.([^>]+?)([\'|\"| ])[^>]*>/',"",$content);
-	$content 	= str_replace(array("\n","\r\n","\r","  "), '', $content);
 	return trim($content);
 }
 /*
@@ -1996,7 +1994,7 @@ function getImage($url,$host='',$path,$type=0){
 		$http 	= $host_arr['scheme'] . '://' . $host_arr['host'];
     	$str 	= substr($url,0,1);
     	if($str == '/'){
-    		$url = trim($host,'/').'/'.trim($url,'/');
+    		$url = trim($http,'/').'/'.trim($url,'/');
     	} else {
     		$substr_end 	= strripos($host, '/');
     		$url 	= substr($host, 0,$substr_end+1) . $url;
@@ -2005,8 +2003,12 @@ function getImage($url,$host='',$path,$type=0){
     if( $arr['host'] && strpos(APP_PATH,$arr['host']) !== false ){
     	return $url;
     }
-    $path 	= $path.end($arr2);
-
+    $end_str 	= stristr(basename($url),'.');
+    if($end_str){
+    	$path 	= $path . time().mt_rand(100000,999999).$end_str;
+    } else {
+	    $path 	= $path.end($arr2);
+    }
     if(!is_dir(dirname(PHPCMS_PATH.$path))){
         mkdir(dirname(PHPCMS_PATH.$path),0777,true);
     }
@@ -2027,7 +2029,7 @@ function getImage($url,$host='',$path,$type=0){
     }
     //文件大小
 	$size=strlen($img);
-	if( $size > 0 ){
+	if( $size > 5000 ){
         $fp2=@fopen(PHPCMS_PATH.$path,'x+');
         fwrite($fp2,$img);
         fclose($fp2);
