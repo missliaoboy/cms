@@ -26,6 +26,7 @@ include $this->admin_tpl('header','admin');
 				</select>
 				<?php echo form::select_category('',$catid,'name="catid"',L('please_select_category'),$modelid,0,1);?>
 				<input name="keywords" type="text" value="<?php echo stripslashes($_GET['keywords'])?>" style="width:260px;" class="input-text" />
+				<input type="hidden" name="relation" value="<?php echo $relation2; ?>">
 				<input type="submit" name="dosubmit" class="button" value="<?php echo L('search');?>" />
 			</div>
 		</td>

@@ -956,7 +956,7 @@ class content extends admin {
 			$id   = intval($_GET['id']); //获取到的主键id
 			$modelid = intval($_GET['modelid']);
 			$this->db->set_model($modelid);
-			$relation2 = $_GET['relation'];
+			$relation2 = $_REQUEST['relation'];
 			$checkedall 	= $arr2	= array();
 			if( $relation2  ){
 				$relation 	= explode(',', $relation2);
