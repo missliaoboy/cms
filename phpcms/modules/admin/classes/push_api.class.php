@@ -133,7 +133,7 @@ class push_api {
 						}
 					}
 					foreach ($param as $d) {
-						$catid 	= $d['catid'];
+						$catid 	= $catid ? $catid : $d['catid'];
 						$info['id'] = $info['listorder'] = $d['id'];
 						$info['catid'] = $catid;
 						$info['posid'] = $pid;

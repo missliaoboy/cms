@@ -29,6 +29,12 @@ include $this->admin_tpl('header','admin');
         <input type="text" name="info[prefix_url]" value="<?php echo $prefix_url; ?>">
     </td>
   </tr>
+  <tr>
+    <th>模板：</th>
+    <td class="y-bg">
+        <input type="text" name="info[template]" value="<?php echo $template; ?>">
+    </td>
+  </tr>
     <tr>
     <th>SEO标题：</th>
     <td class="y-bg">

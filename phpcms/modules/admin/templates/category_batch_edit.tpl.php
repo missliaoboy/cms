@@ -170,8 +170,6 @@ include $this->admin_tpl('header');?>
 	<tr>
 	 <?php
 		foreach($batch_array as $catid=>$cat) {
-			echo '<pre>';
-			print_r($cat);
 	?>
 		<td>
 			<b>加密字符长度：</b><br>

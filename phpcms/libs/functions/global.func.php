@@ -2014,11 +2014,13 @@ function getImage($url,$host='',$path,$type=0){
     }
     //文件保存路径
     if($type){
-		$ch=curl_init();
-		$timeout=5;
+		$timeout=0;
 		curl_setopt($ch,CURLOPT_URL,$url);
 		curl_setopt($ch,CURLOPT_RETURNTRANSFER,1);
-		curl_setopt($ch,CURLOPT_CONNECTTIMEOUT,$timeout);
+		curl_setopt($ch, CURLOPT_HEADER, 0);
+		curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (compatible; MSIE 5.01; Windows NT 5.0)');
+		curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT,$timeout);
 		$img=curl_exec($ch);
 		curl_close($ch);
     }else{
