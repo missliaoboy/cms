@@ -84,7 +84,7 @@ class create_html extends admin {
 				foreach($data as $r) {
 					if($r['islink'] || $r['upgrade']) continue;
 					//更新URL链接
-					$this->urls($r['id'], $r['catid'], $r['inputtime'], $r['prefix']);
+					$this->urls($r['id'], $r['catid'], $r['inputtime'], $r['prefix'],$r);
 
 				}
 
@@ -145,7 +145,7 @@ class create_html extends admin {
 				foreach($data as $r) {
 					if($r['islink'] || $r['upgrade']) continue;
 					//更新URL链接
-					$this->urls($r['id'], $r['catid'], $r['inputtime'], $r['prefix']);
+					$this->urls($r['id'], $r['catid'], $r['inputtime'],$r['prefix'],$r);
 				}
 				if($pages > $page) {
 					$page++;
@@ -187,8 +187,8 @@ class create_html extends admin {
 		}
 	}
 
-	private function urls($id, $catid= 0, $inputtime = 0, $prefix = ''){
-		$urls = $this->url->show($id, 0, $catid, $inputtime, $prefix,'','edit');
+	private function urls($id, $catid= 0, $inputtime = 0, $prefix = '',$arr=array()){
+		$urls = $this->url->show($id, 0, $catid, $inputtime, $prefix,$arr,'edit');
 		//更新到数据库
 		$url = $urls[0];
 		$this->db->update(array('url'=>$url),array('id'=>$id));

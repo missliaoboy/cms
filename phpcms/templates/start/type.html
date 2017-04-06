@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>{$type_arr[seotitle]}- 讲历史网</title>
+        <meta name="keywords" content="{$type_arr[seokeywords]}" />
+        <meta name="description" content="{$type_arr[seodescription]}" />
+        <link rel="stylesheet" type="text/css" href="/statics/css/qsw/style.css" />
+        <link rel="stylesheet" type="text/css" href="/statics/css/qsw/xhy.css" />
+        <script type="text/javascript" src="/statics/js/qsw/jquery-1.8.3.min.js"></script>
+        <script type="text/javascript" src="/statics/js/qsw/main.js"></script>
+    </head>
+    <body>
+
+        <div class="container wrap-xhy">
+            {template "content","header_xhy"}
+            <?php
+                $catid = 236;
+                $catid2 = 236;
+                $arr = range(52,63);
+                $cache_model    = getcache('model','commons');
+                $type_arr_all   = array();
+            ?>            
+            <div class="main">
+                <div class="xhy-con clearfix">
+                    <div class="left">           
+                        <div class="items-two">            
+                            <img src="/statics/images/qsw/xhy-img01.jpg" alt="讲历史-歇后语-每日一歇" />
+                            <div class="content content-three">
+                                <ul class="xhy-all hover">
+                                    {loop $arr $key $val}
+                                        <li>
+                                            <h3>{$deam_type[$val][name]}：</h3>
+                                            <div class="xhy-type-box">     
+                                                <a href="{APP_PATH}{trim($deam_type[$val][prefix_url],'/')}/"  target="_blank" {if $type_arr[level] == 1 && $type_arr[id] == $val} class="cur"{/if} >全部</a>
+                                                <!-- class="cur" -->
+                                                {loop $cache_type $k $v}
+                                                    {if $v[type_deam_id] == $val }               
+                                                        <a href="{APP_PATH}{trim($v[prefix_url],'/')}/" {if $type_arr[level] == 2 && $type_arr[typeid] == $v[typeid] } class="cur"{/if} target="_blank">{$v[name]}</a>
+                                                    {/if}
+                                                {/loop}
+                                            </div>
+                                        </li>
+                                    {/loop}
+                                </ul>
+                                <i class="icon-one"></i>
+                                <i class="icon-two"></i>
+                            </div>
+                            <div class="content content-one">
+                                <ul class="xhy-ul">
+                                    <?php 
+                                        if($type_arr['level'] == 1){
+                                            $cache_all      = array();
+                                            foreach( $cache_type as $k=>$v ){
+                                                if( $v['type_deam_id'] == $type_arr['id'] )
+                                                {
+                                                    $cache_all[]   = " find_in_set(".$v['typeid'].",typeid) ";
+                                                }
+                                            }
+                                            $where_typeid = " status = 99 and ( " . implode(' or ',$cache_all) . " ) ";
+                                        } elseif( $type_arr['level'] == 2 ) {
+                                            $typeid = $type_arr['typeid']; 
+                                            $where_typeid = " find_in_set(".$typeid.", typeid) and status = 99 "; 
+                                        }
+                                        $pathurl = $type_arr['path'];
+                                    ?>
+                                    {pc:content action="lists" catid="236" where="$where_typeid" moreinfo="1" order="updatetime desc" num="16" page="$page" pathurl="$pathurl"  return="data"}{/pc}
+                                        {loop $data $val}
+                                            <li class="clearfix">
+                                                <div class="left">
+                                                    <div class="now">
+                                                        <?php echo str_replace(array('<ruby'),'<ruby class="an clearfix"',$val[content]); ?>
+                                                    </div>
+                                                <div class="thought"></div>                                                           
+                                                </div>                            
+                                                <a class="right" href="{$val[url]}">查看答案</a>
+                                            </li>    
+                                        {/loop}
+                                    {/pc}
+
+                                </ul>
+                                <i class="icon-one"></i>
+                                <i class="icon-two"></i>
+                                <div class="xhy-pagination">
+                                    {if $pages_type_all_list != ''}
+                                        {$pages_type_all_list}
+                                    {/if}
+                                </div>   
+                            </div>
+                        </div>
+                    </div>      
+                    <div class="right">
+                        <div class="group-one">
+                            <h3><i class="icon"></i>热门歇后语</h3>
+                            <ul class="xhy-listbox">
+                                <?php
+                                    if( $qsw521_with_set_arr['xhy4'] ){
+                                        $data = $qsw521_with_set_arr['xhy4'];
+                                    } else {
+                                ?>
+                                    {pc:get sql=" select m.* from lishi_hits h left join lishi_xhy m on m.id = h.id where m.status = 99 order by dayviews desc " num="12" start="50" return="data" }{/pc}
+                                <?php
+                                        $qsw521_with_set_arr['xhy4'] = $data;
+                                    }
+                                ?>
+                                {loop $data $val}
+                                    <li>
+                                        <a href="{$val[url]}" class="clearfix" target="_blank">
+                                            <div class="left">{$val[title]}</div>
+                                            <div class="right">{$val[answer]}</div>
+                                            <div class="line"></div>
+                                        </a>
+                                    </li>
+                                {/loop}
+                            </ul>
+                            <i class="icon-one"></i>
+                            <i class="icon-two"></i>                  
+                        </div>
+                        <div class="group-two">
+                            <h3><i class="icon"></i>推荐歇后语</h3>
+                            <ul class="xhy-listbox">
+                                <?php
+                                    if( $qsw521_with_set_arr['xhy1'] ){
+                                        $data = $qsw521_with_set_arr['xhy1'];
+                                    } else {
+                                ?>
+                                    {pc:get sql=" select m.* from lishi_hits h left join lishi_xhy m on m.id = h.id where m.status = 99 order by weekviews desc " num="12" start="50" return="data" }{/pc}
+                                <?php
+                                        $qsw521_with_set_arr['xhy1'] = $data;
+                                    }
+                                ?>
+                                {loop $data $val}
+                                    <li>
+                                        <a href="{$val[url]}" class="clearfix" target="_blank">
+                                            <div class="left">{$val[title]}</div>
+                                            <div class="right">{$val[answer]}</div>
+                                            <div class="line"></div>
+                                        </a>
+                                    </li>
+                                {/loop}
+                            </ul>     
+                        </div>
+                        <div class="banner_xhy">{show_ad(1, 15)}</div>
+                        <div class="group-three">
+                            <h3><i class="icon"></i>精选歇后语</h3>
+                            <ul class="xhy-listbox">
+                                <?php
+                                    if( $qsw521_with_set_arr['xhy2'] ){
+                                        $data = $qsw521_with_set_arr['xhy2'];
+                                    } else {
+                                ?>
+                                    {pc:get sql=" select m.* from lishi_hits h left join lishi_xhy m on m.id = h.id where m.status = 99 order by monthviews desc " num="12" start="50" return="data" }{/pc}
+                                <?php
+                                        $qsw521_with_set_arr['xhy2'] = $data;
+                                    }
+                                ?>
+                                {loop $data $val}
+                                    <li>
+                                        <a href="{$val[url]}" class="clearfix" target="_blank">
+                                            <div class="left">{$val[title]}</div>
+                                            <div class="right">{$val[answer]}</div>
+                                            <div class="line"></div>
+                                        </a>
+                                    </li>
+                                {/loop}
+                            </ul>
+                            <i class="icon-one"></i>
+                            <i class="icon-two"></i>          
+                        </div>
+                        <div class="group-four">
+                            <h3><i class="icon"></i>歇后语排行榜</h3>
+                            <ul class="xhy-listbox">
+                                <?php
+                                    if( $qsw521_with_set_arr['xhy3'] ){
+                                        $data = $qsw521_with_set_arr['xhy3'];
+                                    } else {
+                                ?>
+                                    {pc:get sql=" select m.* from lishi_hits h left join lishi_xhy m on m.id = h.id where m.status = 99 order by views desc " num="12" start="50" return="data" }{/pc}
+                                <?php
+                                        $qsw521_with_set_arr['xhy3'] = $data;
+                                    }
+                                ?>
+                                {loop $data $val}
+                                    <li>
+                                        <a href="{$val[url]}" class="clearfix" target="_blank">
+                                            <div class="left">{$val[title]}</div>
+                                            <div class="right">{$val[answer]}</div>
+                                            <div class="line"></div>
+                                        </a>
+                                    </li>
+                                {/loop}
+                            </ul>          
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {template "content","footer_xhy"}
+        </div>
+    </body>
+</html>

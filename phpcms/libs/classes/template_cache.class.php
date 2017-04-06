@@ -82,16 +82,22 @@ final class template_cache {
 		$str = preg_replace("/\{\-\-(.+?)\}/","<?php ++\\1; ?>",$str);
 		$str = preg_replace("/\{(.+?)\+\+\}/","<?php \\1++; ?>",$str);
 		$str = preg_replace("/\{(.+?)\-\-\}/","<?php \\1--; ?>",$str);
+		
+		$str = preg_replace ("/\{loop(\S+)\s+(\S+)\s+(\S+)\}/","<?php \$n\\1=1;if(is_array(\\2)) foreach(\\2 AS \\3) { ?>", $str );
+		$str = preg_replace ("/\{loop(\S+)\s+(\S+)\s+(\S+)\s+(\S+)\}/","<?php \$n\\1=1; if(is_array(\\2)) foreach(\\2 AS \\3 => \\4) { ?>", $str );
+		$str = preg_replace ("/\{\/loop(\S+)\}/","<?php \$n\\1++;}unset(\$n\\1); ?>", $str );
+
 		$str = preg_replace ( "/\{loop\s+(\S+)\s+(\S+)\}/", "<?php \$n=1;if(is_array(\\1)) foreach(\\1 AS \\2) { ?>", $str );
 		$str = preg_replace ( "/\{loop\s+(\S+)\s+(\S+)\s+(\S+)\}/", "<?php \$n=1; if(is_array(\\1)) foreach(\\1 AS \\2 => \\3) { ?>", $str );
 		$str = preg_replace ( "/\{\/loop\}/", "<?php \$n++;}unset(\$n); ?>", $str );
+		
 		$str = preg_replace ( "/\{([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff:]*\(([^{}]*)\))\}/", "<?php echo \\1;?>", $str );
 		$str = preg_replace ( "/\{\\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff:]*\(([^{}]*)\))\}/", "<?php echo \\1;?>", $str );
 		$str = preg_replace ( "/\{(\\$[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)\}/", "<?php echo \\1;?>", $str );
-		$str = preg_replace_callback("/\{(\\$[a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]+)\}/s",  array($this, 'addquote'),$str);
+		$str = preg_replace("/\{(\\$[a-zA-Z0-9_\[\]\'\"\$\x7f-\xff]+)\}/es", "\$this->addquote('<?php echo \\1;?>')",$str);
 		$str = preg_replace ( "/\{([A-Z_\x7f-\xff][A-Z0-9_\x7f-\xff]*)\}/s", "<?php echo \\1;?>", $str );
-		$str = preg_replace_callback("/\{pc:(\w+)\s+([^}]+)\}/i", array($this, 'pc_tag_callback'), $str);
-		$str = preg_replace_callback("/\{\/pc\}/i", array($this, 'end_pc_tag'), $str);
+		$str = preg_replace("/\{pc:(\w+)\s+([^}]+)\}/ie", "self::pc_tag('$1','$2', '$0')", $str);
+		$str = preg_replace("/\{\/pc\}/ie", "self::end_pc_tag()", $str);
 		$str = "<?php defined('IN_PHPCMS') or exit('No permission resources.'); ?>" . $str;
 		return $str;
 	}
@@ -102,13 +108,10 @@ final class template_cache {
 	 * @param $var	转义的字符
 	 * @return 转义后的字符
 	 */
-	public function addquote($matches) {
-		$var = '<?php echo '.$matches[1].';?>';
+	public function addquote($var) {
 		return str_replace ( "\\\"", "\"", preg_replace ( "/\[([a-zA-Z0-9_\-\.\x7f-\xff]+)\]/s", "['\\1']", $var ) );
 	}
-	public static function pc_tag_callback($matches) {
-		return self::pc_tag($matches[1],$matches[2], $matches[0]);;
-	}	
+	
 	/**
 	 * 解析PC标签
 	 * @param string $op 操作方式
@@ -117,7 +120,7 @@ final class template_cache {
 	 */
 	public static function pc_tag($op, $data, $html) {
 		preg_match_all("/([a-z]+)\=[\"]?([^\"]+)[\"]?/i", stripslashes($data), $matches, PREG_SET_ORDER);
-		$arr = array('action','num','cache','page', 'pagesize', 'urlrule', 'return', 'start');
+		$arr = array('action','num','cache','page', 'pagesize', 'urlrule', 'return', 'start','path_url');
 		$tools = array('json', 'xml', 'block', 'get');
 		$datas = array();
 		$tag_id = md5(stripslashes($html));
@@ -126,10 +129,14 @@ final class template_cache {
 		foreach ($matches as $v) {
 			$str_datas .= $str_datas ? "&$v[1]=".($op == 'block' && strpos($v[2], '$') === 0 ? $v[2] : urlencode($v[2])) : "$v[1]=".(strpos($v[2], '$') === 0 ? $v[2] : urlencode($v[2]));
 			if(in_array($v[1], $arr)) {
-				${$v[1]} = $v[2];
+				$$v[1] = $v[2];
 				continue;
 			}
 			$datas[$v[1]] = $v[2];
+		}
+		if(isset($datas['pathurl'])){
+			$pathurl = array('pathurl'=>$datas['pathurl']);
+			unset($datas['pathurl']);
 		}
 		$str = '';
 		$num = isset($num) && intval($num) ? intval($num) : 20;
@@ -179,10 +186,12 @@ final class template_cache {
 							$limit = '$offset,$pagesize';
 							$sql = 'SELECT COUNT(*) as count FROM ('.$datas['sql'].') T';
 							$str .= '$r = $get_db->sql_query("'.$sql.'");$s = $get_db->fetch_next();$pages=pages($s[\'count\'], $page, $pagesize, $urlrule);';
+							$str .= '$r = $get_db->sql_query("'.$sql.'");$s = $get_db->fetch_next();$new_pages=new_pages($s[\'count\'], $page, $pagesize, $urlrule);';
 						}
 						
 						
 						$str .= '$r = $get_db->sql_query("'.$datas['sql'].' LIMIT '.$limit.'");while(($s = $get_db->fetch_next()) != false) {$a[] = $s;}$'.$return.' = $a;unset($a);';
+
 					break;
 					
 				case 'block':
@@ -206,8 +215,14 @@ final class template_cache {
 					$datas['limit'] = '$offset.",".$pagesize';
 					$datas['action'] = $action;
 					$str .= '$'.$op.'_total = $'.$op.'_tag->count('.self::arr_to_html($datas).');';
-					$str .= '$pages = pages($'.$op.'_total, $page, $pagesize, $urlrule);';
-					$str .= '$new_pages = new_pages($'.$op.'_total, $page, $pagesize, $urlrule);';
+					if($pathurl){
+						$str .= '$pages_type_all_list = pages_type_all_list($'.$op.'_total, $page, $pagesize, $urlrule,array(\'pathurl\'=>$pathurl));';
+					} else {
+						$str .= '$pages = pages($'.$op.'_total, $page, $pagesize, $urlrule);';
+						$str .= '$new_pages= new_pages($'.$op.'_total, $page, $pagesize, $urlrule);';
+						$str .= '$pages_list = pages_list($'.$op.'_total, $page, $pagesize, $urlrule);';
+						$str .= '$pages_type_list = pages_type_list($'.$op.'_total, $page, $pagesize, $urlrule);';
+					}
 				}
 				$str .= '$'.$return.' = $'.$op.'_tag->'.$action.'('.self::arr_to_html($datas).');';
 				$str .= '}';
