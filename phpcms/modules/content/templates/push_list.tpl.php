@@ -28,7 +28,7 @@ include $this->admin_tpl('header', 'admin');
   foreach ($html as $k => $v) { ?>
   	  <tr>
     <th width="80"><?php echo $v['name']?>：</th>
-    <td class="y-bg"><?php echo creat_form($k, $v,implode(',', $arr))?></td>
+    <td class="y-bg"><?php echo creat_form($k, $v)?></td>
   </tr>
   <?php if ($v['ajax']['name']) {?>
   	  <tr>

@@ -39,7 +39,6 @@ include $this->admin_tpl('header', 'admin');
 <table width="100%"  class="table_form">
   <?php 
     foreach ($type_deam as $key => $value) {
-      if(!in_array($key, $usable_deam_type))continue;
   ?>
   <tr>
       <th width="80"><?php echo $value['name']?>：</th>

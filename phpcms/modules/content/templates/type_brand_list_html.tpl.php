@@ -30,57 +30,47 @@
 </div>
 <script language="javascript" type="text/javascript" src="<?php echo JS_PATH?>jquery.min.js"></script>
 <script language="JavaScript">
-	var ids2 = [];
-	var id 	 = []; 
-	var arr  = [];
-	var ids;
+	var ids = [];
 	var tongji 		= 0;  //序号
 	var isuccess 	= 0; //成功
 	var ierror 		= 0; //失败
 	var j = 0;
-	<?php 	foreach ($new_arr as $key => $value) {	if(empty($value))continue; ?>
-		ids = [];
-		ids.typeid 	= "<?php echo $value['typeid']; ?>";
-		ids.time 	= "<?php echo $time; ?>";
-		ids.key 	= "<?php echo $value['key']; ?>";
-		ids2[<?php echo $key; ?>] = ids;
-		++j;
+	<?php 	foreach ($arr as $key => $value) {	if(empty($value))continue; ?>
+		ids.push('<?php echo $value; ?>');
 	<?php	} ?>
 	
-	function get_html_set(data)
+	function get_html_set()
 	{
-		if(ids2[0] != undefined ){
-			var new_arr 	= ids2[0];
-			var e_arr2	= new Array();
-			if( !new_arr ){
-				return false;
-			}
+		if(ids[0] != undefined ){
+			var new_arr 	= ids[0];
 			++tongji;
 			$.ajax({
-				url:"/index.php?m=content&c=with_set&a=ctwh_type_with",
+				url:"/index.php?m=content&c=with_set&a=type_brand_list_html",
 				type:'post',
 				// async 	: false,
-				data:{typeid:new_arr.typeid,time:new_arr.time,key:new_arr.key},
+				data:{id:new_arr},
 				dataType:'json',
 				success:function(e)
 				{
-					++isuccess;
-					data.shift();
-					var content = '';
-					if(e.title != ''){
-						content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
+					if(e != null){
+						++isuccess;
+						ids.shift();
+						var content = '';
+						if(e.title != ''){
+							content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
+						}
+						$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");						
 					}
-					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
 					set_html();
-					get_html_set(data);
+					get_html_set();
 
 				},
 			    error: function(XMLHttpRequest, textStatus, errorThrown) {
-			    	data.shift();
+			    	ids.shift();
 					++ierror;
 					$('#html_set').prepend("<span style='color:green;font-weight: bold;'>生成失败<span></span></span>   序号" + tongji + "<br/>");
 					set_html();
-					get_html_set(data);
+					get_html_set();
 			    }
 			});
 		} else {
@@ -97,6 +87,6 @@
 
 	window.onload = function()
 	{
-		get_html_set(ids2);
+		get_html_set();
 	}
 </script>

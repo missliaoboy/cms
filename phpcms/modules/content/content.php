@@ -79,7 +79,49 @@ class content extends admin {
 			if(isset($_GET['keyword']) && !empty($_GET['keyword'])) {
 				$type_array = array('title','description','username');
 				$searchtype = intval($_GET['searchtype']);
-				if($searchtype < 3) {
+				if($searchtype == 2){
+					$keyword = strip_tags(trim($_GET['keyword']));
+					$where .= " AND username = '".$keyword."' ";
+				
+				}else if((isset($_GET['type_name']) && $_GET['type_name'] == 'wirtes') || $searchtype == 4){
+
+
+					if(trim($_GET['keyword'])){
+					
+						$keyword = explode(',',trim($_GET['keyword'],','));
+						//print_r($keyword);exit;
+						$keywordList = array();
+						foreach($keyword as $keyVal){
+
+							if(!in_array(trim($keyVal),$keywordList))
+								$keywordList[] = trim($keyVal);
+						}
+						//var_dump($keywordList);exit;
+						if(!empty($keywordList)){
+
+							$this->db->table_name 	= $this->db->db_tablepre.'admin';
+							foreach($keywordList as $keyVals){
+
+								$userList = $this->db->get_one(array('username'=>$keyVals),'userid');
+								if(!empty($userList))
+									$userInfo[] = $userList['userid'];
+							}
+							if(!empty($userInfo)){
+								
+								foreach($userInfo as $userKey=>$userId){
+									if($userKey > 0)
+										$where .= ' or ';
+									else
+										$where .= ' AND ';
+									$where .= ' find_in_set('.$userId.',wirtes) ';
+								}
+							}
+						}
+						//var_dump($where);exit;
+						$keyword = $_GET['keyword'];
+					}
+
+				}else if($searchtype < 3) {
 					$searchtype = $type_array[$searchtype];
 					$keyword = strip_tags(trim($_GET['keyword']));
 					$where .= " AND `$searchtype` like '%$keyword%'";

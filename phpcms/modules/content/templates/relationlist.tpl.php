@@ -12,23 +12,20 @@ include $this->admin_tpl('header','admin');
     <tbody>
 		<tr>
 		<td align="center">
-			<div class="explain-col">
-				<select name="modelid">
-					<?php foreach($model_cache as $value) { ?>
-						<option value='<?php echo $value['modelid']; ?>' <?php if($modelid==$value['modelid']) echo 'selected';?>><?php echo $value['name'];?></option>
-					<?php } ?>
-				</select>
+		<div class="explain-col">
 				<select name="field">
 					<option value='title' <?php if($_GET['field']=='title') echo 'selected';?>><?php echo L('title');?></option>
 					<option value='keywords' <?php if($_GET['field']=='keywords') echo 'selected';?> ><?php echo L('keywords');?></option>
 					<option value='description' <?php if($_GET['field']=='description') echo 'selected';?>><?php echo L('description');?></option>
 					<option value='id' <?php if($_GET['field']=='id') echo 'selected';?>>ID</option>
 				</select>
+				<?php
+					echo form::select_model('model','name="model"',L('model_name'),$modelid);
+				?>				
 				<?php echo form::select_category('',$catid,'name="catid"',L('please_select_category'),$modelid,0,1);?>
-				<input name="keywords" type="text" value="<?php echo stripslashes($_GET['keywords'])?>" style="width:260px;" class="input-text" />
-				<input type="hidden" name="relation" value="<?php echo $relation2; ?>">
+				<input name="keywords" type="text" value="<?php echo stripslashes($_GET['keywords'])?>" style="width:330px;" class="input-text" />
 				<input type="submit" name="dosubmit" class="button" value="<?php echo L('search');?>" />
-			</div>
+	</div>
 		</td>
 		</tr>
     </tbody>
@@ -45,7 +42,7 @@ include $this->admin_tpl('header','admin');
         </thead>
     <tbody>
 	<?php foreach($infos as $r) { ?>
-	<tr <?php if(in_array($r['id'], $checkedall)){ echo "class='line_ff9966'"; } ?> onclick="select_list(this,'<?php echo safe_replace($r['title']);?>',<?php echo $r['id'];?>)" class="cu" title="<?php echo L('click_to_select');?>">
+	<tr onclick="select_list(this,'<?php echo safe_replace($r['title']);?>',<?php echo $r['id'];?>,<?php echo $modelid;?>)" class="cu" title="<?php echo L('click_to_select');?>">
 		<td align='left' ><?php echo $r['title'];?></td>
 		<td align='center'><?php echo $this->categorys[$r['catid']]['catname'];?></td>
 		<td align='center'><?php echo format::date($r['inputtime']);?></td>
@@ -66,39 +63,74 @@ include $this->admin_tpl('header','admin');
 </style>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
-	function select_list(obj,title,id) {
+	function select_list(obj,title,id,modelid) {
 		var relation_ids = window.top.$('#relation').val();
-		var sid = '<?php echo $modelid;?>_'+id;
+		var sid = 'v'+modelid+id;
 		if($(obj).attr('class')=='line_ff9966' || $(obj).attr('class')==null) {
 
 			$(obj).attr('class','line_fbffe4');
 			window.top.$('#'+sid).remove();
+
 			if(relation_ids !='' ) {
+				
 				var r_arr = relation_ids.split(',');
 				var newrelation_ids = '';
-				$.each(r_arr, function(i, n){
-					if(n!=sid) {
-						if(i==0) {
-							newrelation_ids = n;
-						} else {
-						 newrelation_ids = newrelation_ids+','+n;
-						}
+				for(var i=0;i<r_arr.length;i++){
+
+					var n_n = r_arr[i].split('_');
+					if(n_n[0] == modelid && n_n[1] == id) {
+						r_arr.splice(i,1);
 					}
-				});
+				}
+
+				newrelation_ids = r_arr.join(',');
 				window.top.$('#relation').val(newrelation_ids);
 			}
 		} else {
+
+			if(relation_ids != ''){
+
+				var r_arr = relation_ids.split(",");
+				var state = false;
+				$.each(r_arr,function(m,d){
+					var st = modelid+'_'+id;
+					if(st == d){
+						alert('已存在该信息！');
+						state = true;
+					}
+				});
+				if(state == true)
+					return false;
+			}
+
 			$(obj).attr('class','line_ff9966');
-			var str = "<li id='"+sid+"'>·<span>"+title+"</span><a href='javascript:;' class='close' onclick=\"remove_relation('"+sid+"',"+id+")\"></a></li>";
+			var str = "<li id='"+sid+"'>·<span>"+title+"</span><a href='javascript:;' class='close' onclick=\"remove_relation_n('"+sid+"',"+id+","+modelid+")\"></a></li>";
 			window.top.$('#relation_text').append(str);
 			if(relation_ids =='' ) {
-				window.top.$('#relation').val(sid);
+				window.top.$('#relation').val(modelid+'_'+id);
 			} else {
-				relation_ids = relation_ids+','+sid;
+				relation_ids = relation_ids+','+modelid+'_'+id;
 				window.top.$('#relation').val(relation_ids);
 			}
 		}
-}
+	}
+
+	function modelChange($this){
+		var modelId = $this.value;
+		if(modelId != 0){			
+			$("form > input[name=modelid]").eq(0).val(modelId);
+			$.post('?m=content&c=content&a=public_columnList&pc_hash=<?php echo $_GET['pc_hash'];?>',{modelid:modelId},function(ax){
+
+				var catidS = $(".explain-col > select[name=catid] > option:selected").val();
+				if(typeof catidS != 'undefined'){
+					$(".explain-col > select[name=catid]").eq(0).remove();					
+				}
+				$(".explain-col > input[name=keywords]").eq(0).before(ax);
+
+			});
+
+		}
+	}	
 //-->
 </SCRIPT>
 </body>

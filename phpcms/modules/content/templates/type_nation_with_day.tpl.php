@@ -1,8 +1,6 @@
 <?php
 	defined('IN_ADMIN') or exit('No permission resources.');
 	pc_base::load_app_class('admin','admin',0); 
-	$new_system = pc_base::load_config('system'); //引入配置文件
-	$time 		= time();
 ?>
 <style type="text/css">
 	.isuccess{
@@ -35,87 +33,52 @@
 	var ids2 = [];
 	var id 	 = []; 
 	var arr  = [];
+	var category = [227,228,229,230,231,232];
 	var ids;
 	var tongji 		= 0;  //序号
 	var isuccess 	= 0; //成功
 	var ierror 		= 0; //失败
 	var j = 0;
-	<?php 	foreach ($arr4 as $key => $value) {	if(empty($value))continue; ?>
+	<?php 	foreach ($new_arr as $key => $value) {	if(empty($value))continue; ?>
 		ids = [];
-		ids.num 	= "<?php echo $value['num']; ?>";
-		ids.catid 	= "<?php echo $value['catid']; ?>";
-		ids.modelid = "<?php echo $value['modelid']; ?>";
+		ids.typeid 	= "<?php echo $value['typeid']; ?>";
+		ids.time 	= "<?php echo $time; ?>";
+		ids.key 	= "<?php echo $value['key']; ?>";
 		ids2[<?php echo $key; ?>] = ids;
+		arr[<?php echo $key; ?>] = ids;
 		++j;
 	<?php	} ?>
-	// 获取要生成分类的id  ajax请求防止超时
-	function get_catid_id()
-	{
-		var time 	= "<?php echo $time; ?>";
-		var key 	= "<?php echo md5($new_system['with_set_key'].$time); ?>";
-		for( var i in ids2){
-			$.ajax({
-				url		: "/index.php?m=content&c=with_set&a=get_catid_id",
-				type 	: "post",
-				async 	: false,
-				data 	: {catid:ids2[i].catid,num:ids2[i].num,time:time,key:key,modelid:ids2[i].modelid},
-				dataType: 'json',
-				success	: function(data){
-					--j;
-					var e_id = '';
-					if( data != '' && data ){
-						for(var i2 in data){
-							if(data[i2].id > 0){
-								var e_arr = [];
-								e_arr['modelid'] = ids2[i].modelid;
-								e_arr['catid'] 	 = ids2[i].catid;
-								e_arr['id'] 	 = data[i2].id;
-								arr.push(e_arr); 
-							}
-						}						
-					}
-					if(j == 0){
-						data = '';
-						get_html_set(arr);
-					}
-				}
-			});
-		}
-	}
 	
 	function get_html_set(data)
 	{
-		if(j == 0 && data[0] != undefined ){
-			var new_arr 	= data[0];
+		if(ids2[0] != undefined ){
+			var new_arr 	= ids2[0];
 			var e_arr2	= new Array();
 			if( !new_arr ){
 				return false;
 			}
 			++tongji;
-			e_arr2.id 		= new Array();
-			e_arr2.catid 	= new_arr.catid;
-			e_arr2.modelid 	= new_arr.modelid;
-			e_arr2.id.push(data[0].id);
-			data.shift();
 			$.ajax({
-				url:"/index.php?m=content&c=content&a=pass&catid="+e_arr2.catid+"&steps=2&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
+				url:"/index.php?m=content&c=with_set&a=ctwh_nation_with",
 				type:'post',
 				// async 	: false,
-				data:{catid:e_arr2.catid,modelid:e_arr2.modelid,ids:e_arr2.id,'token':'www.jianglishi.cn','site_type':1},
+				data:{typeid:new_arr.typeid,time:new_arr.time,key:new_arr.key},
 				dataType:'json',
 				success:function(e)
 				{
 					++isuccess;
+					data.shift();
 					var content = '';
 					if(e.title != ''){
-						content = "<b>【" + e.catname + "】</b><a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
+						content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
 					}
 					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
 					set_html();
-					get_html_set(data);
+					category_with(data,new_arr,6);
 
 				},
 			    error: function(XMLHttpRequest, textStatus, errorThrown) {
+			    	data.shift();
 					++ierror;
 					$('#html_set').prepend("<span style='color:green;font-weight: bold;'>生成失败<span></span></span>   序号" + tongji + "<br/>");
 					set_html();
@@ -124,6 +87,45 @@
 			});
 		} else {
 			$('#html_set').prepend("<span>生成完成<span></span></span><br/>");
+		}
+	}
+
+	function category_with(data,data2,ei)
+	{
+		if(ei > 0){
+			var now = ei-1;
+			++tongji;
+			$.ajax({
+				url:"/index.php?m=content&c=with_set&a=ctwh_nation_category_with",
+				type:'post',
+				// async 	: false,
+				data:{typeid:data2.typeid,time:data2.time,key:data2.key,typeid2:category[now]},
+				dataType:'json',
+				success:function(e)
+				{
+					++isuccess;
+					var content = '';
+					if(e.title != ''){
+						content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
+					}
+					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
+					set_html();
+					if(now == 0){
+						get_html_set(data);
+					} else{
+						category_with(data,data2,now);
+					}
+				},
+			    error: function(XMLHttpRequest, textStatus, errorThrown) {
+					++ierror;
+					$('#html_set').prepend("<span style='color:green;font-weight: bold;'>生成失败<span></span></span>   序号" + tongji + "<br/>");
+					if(now == 0){
+						get_html_set(data);
+					} else{
+						category_with(data,data2,now);
+					}
+			    }
+			});
 		}
 	}
 
@@ -136,6 +138,6 @@
 
 	window.onload = function()
 	{
-		get_catid_id();
+		get_html_set(ids2);
 	}
 </script>

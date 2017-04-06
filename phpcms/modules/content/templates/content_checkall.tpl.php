@@ -21,8 +21,10 @@ for ($j=0;$j<5;$j++) {
     <table width="100%">
         <thead>
             <tr>
+            <th width="16"><input type="checkbox" value="" id="check_box" onclick="selectall('ids[]');"></th>
             <th width="60">ID</th>
 			<th><?php echo L('title');?></th>
+            <th width="90">操作人员</th>
             <th><?php echo L('select_model_name');?></th>
             <th width="90"><?php echo L('current_steps');?></th>
             <th width="50"><?php echo L('steps');?></th>
@@ -35,6 +37,7 @@ for ($j=0;$j<5;$j++) {
 <tbody>
     <?php
 	$model_cache = getcache('model','commons');
+    //print_r($datas);
 	foreach ($datas as $r) {
 		$arr_checkid = explode('-',$r['checkid']);
 
@@ -48,8 +51,19 @@ for ($j=0;$j<5;$j++) {
 		$flowname = L('workflow_'.$r['status']);
 	?>
         <tr>
+        <td align="center"><input class="inputcheckbox " name="ids[]" value="<?php echo $arr_checkid[1].'_'.$r['catid'];?>" type="checkbox"></td>
 		<td align='center' ><?php echo $arr_checkid[1];?></td>
 		<td align='left' ><a href="javascript:;" onclick='change_color(this);window.open("?m=content&c=content&a=public_preview&steps=<?php echo $r['status']?>&catid=<?php echo $r['catid'];?>&id=<?php echo $arr_checkid[1];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>","manage")'><?php echo $r['title'];?></a></td>
+		<td align='center' >
+			<?php 
+				if(!empty($r['wirtes'])){
+					$user = explode(',', $r['wirtes']);
+					foreach ($user as $key => $value) {
+						echo $admin_user[$value]['username'].',';
+					}
+				}
+			?>
+		</td>
 		<td align='center' ><?php echo $modelname;?></td>
 		<td align='center' ><?php echo $flowname;?></td>
 		<td align='center' ><?php echo $stepname;?></td>
@@ -69,6 +83,15 @@ for ($j=0;$j<5;$j++) {
      <?php }?>
 </tbody>
      </table>
+
+    <div class="btn"><label for="check_box"><?php echo L('selected_all');?>/<?php echo L('cancel');?></label>
+        <?php
+        if($status!=99) {?>
+        <input type="button" class="button" value="<?php echo L('passed_checked');?>" onclick="myform.action='?m=content&c=content&a=audit_pass&steps=<?php echo $status;?>';myform.submit();"/>
+        <?php }?>
+        <input type="button" class="button" value="<?php echo L('delete');?>" onclick="myform.action='?m=content&c=content&a=audit_delete';return confirm_delete()"/>
+        <?php echo runhook('admin_content_init')?>
+    </div>
  <div id="pages"><?php echo $pages?></div>
 </div>
 </form>
@@ -78,6 +101,9 @@ for ($j=0;$j<5;$j++) {
 window.top.$("#current_pos_attr").html('<?php echo L('checkall_content');?>');
 function change_color(obj) {
 	$(obj).css('color','red');
+}
+function confirm_delete(){
+    if(confirm('<?php echo L('confirm_delete', array('message' => L('selected')));?>')) $('#myform').submit();
 }
 //-->
 </script>

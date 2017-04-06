@@ -23,7 +23,7 @@ foreach($datas as $r) {
 <tr>
 <td align="center"><input type="text" name="listorders[<?php echo $r['id']?>]" value="<?php echo $r['listorder']?>" size="3" class='input-text-c'></td>
 <td align="center"><?php echo $r['id']?></td>
-<td align="center"><?php echo $r['name']?></td>
+<td align="center"><a href="/index.php?m=content&c=cachestype&a=deam_show&id=<?php echo $r['id']; ?>"><?php echo $r['name']?></a></td>
 <td ><?php echo $r['description']?></td>
 <td align="center"><a href="javascript:edit('<?php echo $r['id']?>','<?php echo trim(new_addslashes($r['name']))?>')"><?php echo L('edit');?></a> | <a href="javascript:;" onclick="data_delete(this,'<?php echo $r['id']?>','<?php echo trim(new_addslashes($r['name']));?>')"><?php echo L('delete')?></a> </td>
 </tr>

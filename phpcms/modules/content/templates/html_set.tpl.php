@@ -21,7 +21,7 @@ include $this->admin_tpl('header','admin');?>
 			$.ajax({
 				url:"/index.php?m=content&c=content&a=pass&catid=<?php echo $catid; ?>&steps=<?php echo $steps; ?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>",
 				type:'post',
-				data:{catid:"<?php echo $catid?>",ids:arr,'token':'<?php echo TOKEN_AJAX_TEMPLATE; ?>','site_type':1},
+				data:{catid:"<?php echo $catid?>",ids:arr,'token':'www.jianglishi.cn','site_type':1},
 				dataType:'json',
 				success:function(e)
 				{
@@ -34,9 +34,9 @@ include $this->admin_tpl('header','admin');?>
 					change_model(i);
 				},
 			    error: function(XMLHttpRequest, textStatus, errorThrown) {
-					alert(XMLHttpRequest.status);
-					alert(XMLHttpRequest.readyState);
-					alert(textStatus);
+                                $('#html_set').append("<h2>第"+ (i+1) +"生成出错了，状态码:<span>"+ XMLHttpRequest.status+"</span></h2><br/>");
+                                 ++i;
+                                change_model(i);
 			    }
 			})			
 		} else {

@@ -300,13 +300,73 @@ function type_sort(e)
 	$("input[name='type_name']").val($(e).attr('alt'));
 	var type = $("input[name='type_sort']").val();
 		type = type == 1 ? 0 :1;
+	
+	if($(e).attr('alt') == 'wirtes'){
+		
+		$("input[name='keyword']").val($.trim($(e).html()));
+		//return;
+	}
+	if($(e).attr('alt') == 'views'){
+		type = 0;
+	}
 	$("input[name='type_sort']").val(type);
 	$('#form1').submit();
+	// window.location.href = "http://www.baidu.com";type_sort
 }
 function open_list(obj) {
 	window.top.$("#current_pos_attr").html($(obj).html());
 }
 
+function dblclickInfo($this,$id,$catid,$remark){
+
+	if($remark == 'title'){
+		
+		var $val = $this.getElementsByTagName('span').item(0).innerHTML;
+
+		$this.getElementsByTagName('span').item(0).innerHTML = '<input type="text" id="'+$id+'_<?php echo $modelid;?>_'+$catid+'" style="width:300px;" onblur="updateInfo(this,\'title\')" value="'+$val+'">';
+		var url = $this.getElementsByTagName('a').item(0).getAttribute('href');
+		$this.getElementsByTagName('a').item(0).removeAttribute('href');
+		$this.getElementsByTagName('a').item(0).setAttribute('alt',url);
+
+	}else{
+		var $val = $this.getElementsByTagName('span').item(0).innerHTML;
+		$this.getElementsByTagName('span').item(0).innerHTML = '<input type="text" id="'+$id+'_<?php echo $modelid;?>_'+$catid+'" style="width:300px;" onblur="updateInfo(this,\''+$remark+'\')" value="'+$val+'">';
+	}
+
+	//console.debug(url);
+}
+function updateInfo($this,$remark){
+
+	//console.debug($this.parentNode.parentNode);
+	if($remark == 'title'){
+		
+		var url = $this.parentNode.parentNode.getAttribute('alt');
+		$this.parentNode.parentNode.setAttribute('href',url);
+		$this.parentNode.innerHTML = $this.value;
+				
+	}else{
+		$this.parentNode.innerHTML = $this.value;
+	}
+	var idInfo = $this.getAttribute('id');
+	var idList = idInfo.split('_');
+	//console.debug(idList);return;
+	$.post('?m=content&c=content&a=updateinfos&pc_hash=<?php echo $pc_hash; ?>',{'val':$this.value,'remark':$remark,'id':idList[0],'modelid':idList[1],'catid':idList[2]},function(data){
+		//console.debug(data);
+		if(!data){
+			alert('修改'+$remark+'失败!');
+		}else{
+			var searchStyle =   $('#searchid').attr('style');
+			
+			if(typeof searchStyle != 'undefined' && searchStyle == 'display:'){
+				window.location.href = '?m=content&c=content&a=init2&modelid=<?php echo $_GET['modelid'];?>&steps=<?php echo $_GET['steps'];?>&search=1&type_sort=<?php echo $_GET['type_sort'];?>&type_name=<?php echo $_GET['type_name'];?>&pc_hash=<?php echo $_GET['pc_hash'];?>&start_time=<?php echo $_GET['start_time'];?>&end_time=<?php echo $_GET['end_time'];?>&posids=<?php echo $_GET['posids'];?>&searchtype=<?php echo $_GET['searchtype'];?>&keyword=<?echo $_GET['keyword'];?>&typeid=<?php echo $_GET['typeid'];?>&page=<?php echo $_GET['page'];?>';
+			}else{
+				window.location.href = '?m=content&c=content&a=init2&modelid=<?php echo $_GET['modelid'];?>&pc_hash=<?php echo $_GET['pc_hash'];?>&page=<?php echo $_GET['page'];?>';
+			}
+		}
+	});
+}
+
+//-->
 </script>
 </body>
 </html>

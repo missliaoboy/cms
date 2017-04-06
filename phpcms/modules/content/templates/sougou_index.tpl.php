@@ -9,8 +9,9 @@ include $this->admin_tpl('header','admin');?>
 	<tr>
 	<th width="5%"><?php echo L('listorder');?></td>
 	<th width="5%">ID</th>
-	<th width="20%"><?php echo L('type_name');?></th>
-	<th width="*"><?php echo L('description');?></th>
+	<th width="20%">热点词</th>
+	<th width="20%">时间</th>
+	<th width="*">点击数</th>
 	<th width="30%"><?php echo L('operations_manage');?></th>
 	</tr>
         </thead>
@@ -22,10 +23,14 @@ foreach($datas as $r) {
 ?>
 <tr>
 <td align="center"><input type="text" name="listorders[<?php echo $r['typeid']?>]" value="<?php echo $r['listorder']?>" size="3" class='input-text-c'></td>
-<td align="center"><?php echo $r['typeid']?></td>
-<td align="center"><a href="/index.php?m=content&c=cachestype&a=type_show&typeid=<?php echo $r['typeid']; ?>"><?php echo $r['name']?></a></td>
-<td ><?php echo mb_substr($r['description'],0,100); ?></td>
-<td align="center"><a href="javascript:edit('<?php echo $r['typeid']?>','<?php echo trim(new_addslashes($r['name']))?>')"><?php echo L('edit');?></a> | <a href="javascript:;" onclick="data_delete(this,'<?php echo $r['typeid']?>','<?php echo trim(new_addslashes($r['name']));?>')"><?php echo L('delete')?></a> </td>
+<td align="center"><?php echo $r['id']?></td>
+<td align="center"><?php echo $r['title']?></td>
+<td align="center"><?php echo date('Y-m-d',$r['add_time']); ?></td>
+<td align="center"><?php echo $r['num']; ?></td>
+<td align="center">
+<a href="javascript:edit('<?php echo $r['id']?>','<?php echo trim(new_addslashes($r['title']))?>')"><?php echo L('edit');?></a> | 
+<a href="javascript:;" onclick="data_delete(this,'<?php echo $r['id']?>','<?php echo trim(new_addslashes($r['title']));?>')"><?php echo L('delete')?></a>
+</td>
 </tr>
 <?php } ?>
 	</tbody>
@@ -43,12 +48,12 @@ foreach($datas as $r) {
 window.top.$('#display_center_id').css('display','none');
 function edit(id, name) {
 	window.top.art.dialog({id:'edit'}).close();
-	window.top.art.dialog({title:'<?php echo L('edit_type');?>《'+name+'》',id:'edit',iframe:'?m=content&c=type_manage&a=edit&typeid='+id,width:'780',height:'500'}, function(){var d = window.top.art.dialog({id:'edit'}).data.iframe;d.document.getElementById('dosubmit').click();return false;}, function(){window.top.art.dialog({id:'edit'}).close()});
+	window.top.art.dialog({title:'<?php echo L('edit_type');?>《'+name+'》',id:'edit',iframe:'?m=content&c=sougou&a=edit&id='+id,width:'780',height:'500'}, function(){var d = window.top.art.dialog({id:'edit'}).data.iframe;d.document.getElementById('dosubmit').click();return false;}, function(){window.top.art.dialog({id:'edit'}).close()});
 }
 function data_delete(obj,id,name){
-	window.top.art.dialog({content:name, fixed:true, style:'confirm', id:'data_delete'}, 
+	window.top.art.dialog({content:'删除 '+name+' ?', fixed:true, style:'confirm', id:'data_delete'}, 
 	function(){
-	$.get('?m=content&c=type_manage&a=delete&typeid='+id+'&pc_hash='+pc_hash,function(data){
+	$.get('?m=content&c=sougou&a=delete&id='+id+'&pc_hash='+pc_hash,function(data){
 				if(data) {
 					$(obj).parent().parent().fadeOut("slow");
 				}

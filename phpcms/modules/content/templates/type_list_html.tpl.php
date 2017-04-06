@@ -76,7 +76,7 @@
 					}
 					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
 					set_html();
-					category_with(data,new_arr,e.childid);
+					category_with(data,new_arr,e.idarr);
 				},
 			    error: function(XMLHttpRequest, textStatus, errorThrown) {
 			    	data.shift();

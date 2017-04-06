@@ -1,12 +1,12 @@
 <?php
 defined('IN_ADMIN') or exit('No permission resources.');
-include $this->admin_tpl('header','admin');?>
+include $this->admin_tpl('header','admin');
+?>
 <div class="pad-10">
 <div class="explain-col">
 <?php echo L('html_notice');?>
 </div>
 <div class="bk10"></div>
-
 <div class="table-list">
 <table width="100%" cellspacing="0">
 
@@ -34,6 +34,8 @@ include $this->admin_tpl('header','admin');?>
 		?>
 	</td>
     </tr>
+ 
+
 	<tr> 
       <td align="center" rowspan="6">
 <select name='catids[]' id='catids'  multiple="multiple"  style="height:200px;" title="<?php echo L('push_ctrl_to_select');?>">
@@ -56,9 +58,12 @@ include $this->admin_tpl('header','admin');?>
       <td><?php echo L('update_id_from');?> <input type="text" name="fromid" value="0" size="8"> <?php echo L('to');?> <input type="text" name="toid" size="8"> <?php echo L('in_information');?> <input type="button" class="button" name="dosubmit4" value=" <?php echo L('submit_start_update');?> " onclick="myform.type.value='id';myform.submit();"></td>
     </tr>
 	<?php } ?>
-	<tr> 
-      <td></td>
+	<tr class="trClass" style="display:">
+      <td><?php echo L('update_time_from');?> <?php echo form::date('fromdate');?> <?php echo L('to');?> <?php echo form::date('todate');?><?php echo L('in_information');?> <input type="button" name="dosubmitTime" value=" <?php echo L('submit_start_update');?> " class="button" onclick="myform.type.value='date';myform.submit();"></td>
     </tr>
+    <tr class="trClass" style="display:">
+      <td><font color="red">当前页面，不选择模型，选择时间，然后点击第二个“开始更新”，才会同步更新到手机端，不然不会同步到手机端！</font></td>
+    </tr>    
 	</tbody>
 	</form>
 </table>
@@ -66,8 +71,15 @@ include $this->admin_tpl('header','admin');?>
 </div>
 </div>
 <script language="JavaScript">
+
+    var modelids = '<?php echo $_GET['modelid'];?>';
+    if(typeof modelids != 'undefined' && modelids != ''){
+        $('.trClass').remove();
+    }
 <!--
 	window.top.$('#display_center_id').css('display','none');
+
+
 	function change_model(modelid) {
 		window.location.href='?m=content&c=create_html&a=show&modelid='+modelid+'&pc_hash='+pc_hash;
 	}

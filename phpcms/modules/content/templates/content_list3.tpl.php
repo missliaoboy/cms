@@ -1,49 +1,37 @@
 <?php
-
 defined('IN_ADMIN') or exit('No permission resources.');
 include $this->admin_tpl('header','admin');?>
 <div id="closeParentTime" style="display:none"></div>
 <SCRIPT LANGUAGE="JavaScript">
 <!--
-	if(window.top.$("#current_pos").data('clicknum')==1 || window.top.$("#current_pos").data('clicknum')==null) {
+if(window.top.$("#current_pos").data('clicknum')==1 || window.top.$("#current_pos").data('clicknum')==null) {
 	parent.document.getElementById('display_center_id').style.display='';
-	var siteid = <?php echo $this->siteid;?>;
-	if(siteid == 1){
-		parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys2&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
-	} else {
-		parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
-	}
+	parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys2&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
 	window.top.$("#current_pos").data('clicknum',0);
-
-
 }
 //-->
 </SCRIPT>
 <div class="pad-10">
 <div class="content-menu ib-a blue line-x">
-<a class="add fb" href="javascript:;" onclick=javascript:openwinx('?m=content&c=content&a=add&menuid=&catid=<?php echo $catid;?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>','')><em><?php echo L('add_content');?></em></a>　
-<a href="?m=content&c=content&a=init&catid=<?php echo $catid;?>&pc_hash=<?php echo $pc_hash;?>" <?php if($steps==0 && !isset($_GET['reject'])) echo 'class=on';?>><em><?php echo L('check_passed');?></em></a><span>|</span>
+<a class="add fb" href="javascript:;" onclick=javascript:openwinx('?m=content&c=content&a=add&menuid=&modelid=<?php echo $modelid;?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>','')><em><?php echo L('add_content');?></em></a>　
+<a href="?m=content&c=content&a=init2&modelid=<?php echo $modelid;?>&pc_hash=<?php echo $pc_hash;?>" <?php if($steps==0 && !isset($_GET['reject'])) echo 'class=on';?>><em><?php echo L('check_passed');?></em></a><span>|</span>
 <?php echo $workflow_menu;?> <a href="javascript:;" onclick="javascript:$('#searchid').css('display','');"><em><?php echo L('search');?></em></a> 
 <?php if($category['ishtml']) {?>
-<span>|</span><a href="?m=content&c=create_html&a=category&pagesize=30&dosubmit=1&modelid=0&catids[0]=<?php echo $catid;?>&pc_hash=<?php echo $pc_hash;?>&referer=<?php echo urlencode($_SERVER['QUERY_STRING']);?>"><em><?php echo L('update_htmls',array('catname'=>$category['catname']));?></em></a>
+<span>|</span><a href="?m=content&c=create_html&a=category&pagesize=30&dosubmit=1&modelid=0&catids[0]=<?php echo $catid;?>&pc_hash=<?php echo $pc_hash;?>&referer=<?php echo urlencode($_SERVER['QUERY_STRING']);?>" target="_blank"><em><?php echo L('update_htmls',array('catname'=>$category['catname']));?></em></a>
 <?php }?>
-</div>
+</div> 
 <div id="searchid" style="display:<?php if(!isset($_GET['search'])) echo 'none';?>">
 <form name="searchform" action="" method="get" id="form1">
 <input type="hidden" value="content" name="m">
 <input type="hidden" value="content" name="c">
-<input type="hidden" value="init" name="a">
+<input type="hidden" value="<?php echo $_GET['a'] == 'init2' ? 'init2' : ''; ?>" name="a">
 <input type="hidden" value="<?php echo $catid;?>" name="catid">
 <input type="hidden" value="<?php echo $steps;?>" name="steps">
+<input type="hidden" value="<?php echo $modelid;?>" name="modelid">
 <input type="hidden" value="1" name="search">
 <input type="hidden" value="<?php echo $type_sort;?>" name="type_sort">
 <input type="hidden" value="<?php echo $type_name;?>" name="type_name">
 <input type="hidden" value="<?php echo $pc_hash;?>" name="pc_hash">
-<?php if(isset($_GET['reject'])){ ?>
-<input type="hidden" value="<?php echo $_GET['reject'];?>" name="reject">
-<?php
-}
-?>
 <table width="100%" cellspacing="0" class="search-form">
     <tbody>
 		<tr>
@@ -60,17 +48,14 @@ include $this->admin_tpl('header','admin');?>
 					<option value='1' <?php if($_GET['searchtype']==1) echo 'selected';?>><?php echo L('intro');?></option>
 					<option value='2' <?php if($_GET['searchtype']==2) echo 'selected';?>><?php echo L('username');?></option>
 					<option value='3' <?php if($_GET['searchtype']==3) echo 'selected';?>>ID</option>
-					<option value="4" <?php if($_GET['searchtype']==4) echo 'selected';?>>修改人员</option>
 				</select>
-				<input name="keyword" type="text" value="<?php if(isset($keyword)) echo $keyword;?>" class="input-text" />
+				<input name="keyword" type="text" value="<?php if(isset($_GET['keyword'])) echo $_GET['keyword'];?>" class="input-text" />
 				<select name="typeid">
 					<option></option>
 					<?php 
 						if(!empty($type) && is_array($type)){
 							foreach ($type as $key => $value) {
-								$selected = '';
-								if($typeid == $value['typeid'])$selected = " selected='selected' ";
-								echo "<option value='".$value['typeid']."' ".$selected." >".$value['name']."</option>";
+								echo "<option value='".$value['typeid']."'>".$value['name']."</option>";
 							}
 						}
 					?>
@@ -92,6 +77,7 @@ include $this->admin_tpl('header','admin');?>
             <th width="37"><?php echo L('listorder');?></th>
             <th width="40" onclick="type_sort(this)" alt='id'><a href="javascript:;" style="font-weight:blod;color:red;">ID</a></th>
             <th width="50" onclick="type_sort(this)" alt='typeid'><a href="javascript:;" style="font-weight:blod;color:red;">朝代</a></th>
+            <th width="100">栏目</th>
 			<th><?php echo L('title');?></th>
 			<th>关键词</th>
 			<th>tag关键词</th>
@@ -100,16 +86,15 @@ include $this->admin_tpl('header','admin');?>
 				<th width="70">修改人员</th>			
 			<?php	} ?>
 			<th width="40">最近修改人员</th>
-            <th width="40" onclick="type_sort(this)" alt="views"><a href="javascript:;" style="font-weight:blod;color:red;"><?php echo L('hits');?></a></th>
+            <th width="40"><?php echo L('hits');?></th>
             <th width="70" ><?php echo L('publish_user');?></th>
             <th width="118" onclick="type_sort(this)" alt="updatetime"><a href="javascript:;" style="font-weight:blod;color:red;"><?php echo L('updatetime');?></a></th>
-			<th width="72"><?php echo L('operations_manage');?></th>
+			<th width="172"><?php echo L('operations_manage');?></th>
             </tr>
         </thead>
 <tbody>
     <?php
 	if(is_array($datas)) {
-		//print_r($datas);
 		$sitelist = getcache('sitelist','commons');
 		$release_siteurl = $sitelist[$category['siteid']]['url'];
 		$path_len = -strlen(WEB_PATH);
@@ -117,14 +102,13 @@ include $this->admin_tpl('header','admin');?>
 		$this->hits_db = pc_base::load_model('hits_model');
 		
 		foreach ($datas as $r) {
-
 			$hits_r = $this->hits_db->get_one(array('hitsid'=>'c-'.$modelid.'-'.$r['id']));
 	?>
         <tr>
 		<td align="center"><input class="inputcheckbox " name="ids[]" value="<?php echo $r['id'];?>" type="checkbox"></td>
         <td align='center'><input name='listorders[<?php echo $r['id'];?>]' type='text' size='3' value='<?php echo $r['listorder'];?>' class='input-text-c'></td>
 		<td align='center' ><?php echo $r['id'];?></td>
-		<td align='center'>
+		<td align='center' >
 			<?php 
 				if($r['typeid']){
 					$arr2 = explode(',', $r['typeid']);
@@ -134,7 +118,8 @@ include $this->admin_tpl('header','admin');?>
 				}
 			?>
 		</td>
-		<td  ondblclick="dblclickInfo(this,'<?php echo $r['id'];?>','<?php echo $r['catid'];?>','title')">
+		<td align='center' ><a target="right" href="?m=content&c=content&a=init&catid=<?php echo $r['catid']; ?>&type=add&menuid=<?php echo $_GET['menuid'];?>" onclick="open_list(this)"><?php echo $this->categorys[$r['catid']]['catname'];?></td>
+		<td ondblclick="dblclickInfo(this,'<?php echo $r['id'];?>','<?php echo $r['catid'];?>','title')">
 		<?php
 		if($status==99) {
 			if($r['islink']) {
@@ -145,7 +130,7 @@ include $this->admin_tpl('header','admin');?>
 				echo '<a href="'.$release_siteurl.$r['url'].'" target="_blank">';
 			}
 		} else {
-			echo '<a href="javascript:;" onclick=\'window.open("?m=content&c=content&a=public_preview&steps='.$steps.'&catid='.$catid.'&id='.$r['id'].'","manage")\'>';
+			echo '<a href="javascript:;" onclick=\'window.open("?m=content&c=content&a=public_preview&steps='.$steps.'&catid='.$r['catid'].'&id='.$r['id'].'","manage")\'>';
 		}?><span<?php echo title_style($r['style'])?>><?php echo $r['title'];?></span></a> <?php if($r['thumb']!='') {echo '<img src="'.IMG_PATH.'icon/small_img.gif" title="'.L('thumb').'">'; } if($r['posids']) {echo '<img src="'.IMG_PATH.'icon/small_elite.gif" title="'.L('elite').'">';} if($r['islink']) {echo ' <img src="'.IMG_PATH.'icon/link.png" title="'.L('islink_url').'">';}?></td>
 		<td ondblclick="dblclickInfo(this,'<?php echo $r['id'];?>','<?php echo $r['catid'];?>','seokeywords')"><span><?php echo $r['seokeywords']; ?></span></td>
 		<td ondblclick="dblclickInfo(this,'<?php echo $r['id'];?>','<?php echo $r['catid'];?>','keywords')"><span><?php echo $r['keywords']; ?></span></td>
@@ -162,15 +147,21 @@ include $this->admin_tpl('header','admin');?>
 					}
 				?>
 			</td>
-			<td style="word-break: break-all;word-wrap:break-word; width:70px;" align="center" class="wirtes" onclick="type_sort(this)" alt="wirtes">
+			<td style="word-break: break-all;word-wrap:break-word; width:70px;" align="center" onclick="type_sort(this)" alt="wirtes">
 				<?php 
 					if(!empty($r['wirtes'])){
 						$user = explode(',', $r['wirtes']);
+						/*
+						foreach ($user as $key => $value) {
+							echo $admin_user[$value]['username'].',';
+						}
+						*/
 						$adminUser = '';
 						foreach ($user as $key => $value) {
+							//echo $admin_user[$value]['username'].',';
 							$adminUser .= $admin_user[$value]['username'].',';
 						}
-						echo trim($adminUser,',');
+						echo trim($adminUser,',');					
 					}
 				?>
 			</td>		
@@ -195,7 +186,7 @@ include $this->admin_tpl('header','admin');?>
 		}
 		?></td>
 		<td align='center'><?php echo format::date($r['updatetime'],1);?></td>
-		<td align='center'><a href="javascript:;" onclick="javascript:openwinx('?m=content&c=content&a=edit&catid=<?php echo $catid;?>&id=<?php echo $r['id']?>','')"><?php echo L('edit');?></a> | <a href="javascript:view_comment('<?php echo id_encode('content_'.$catid,$r['id'],$this->siteid);?>','<?php echo safe_replace($r['title']);?>')"><?php echo L('comment');?></a></td>
+		<td align='center'><a href="javascript:;" onclick="javascript:openwinx('?m=content&c=content&a=edit&catid=<?php echo $r['catid'];?>&id=<?php echo $r['id']?>','')"><?php echo L('edit');?></a> | <a href="javascript:view_comment('<?php echo id_encode('content_'.$r['catid'],$r['id'],$this->siteid);?>','<?php echo safe_replace($r['title']);?>')"><?php echo L('comment');?></a>|<a href="?m=content&c=content&a=list_zhuanti&id=<?php echo $r['id']?>&pc_hash=<?php echo $_SESSION['pc_hash']; ?>">结构图</a></td>
 	</tr>
      <?php }
 	}
@@ -204,14 +195,14 @@ include $this->admin_tpl('header','admin');?>
      </table>
     <div class="btn"><label for="check_box"><?php echo L('selected_all');?>/<?php echo L('cancel');?></label>
 		<input type="hidden" value="<?php echo $pc_hash;?>" name="pc_hash">
-    	<input type="button" class="button" value="<?php echo L('listorder');?>" onclick="myform.action='?m=content&c=content&a=listorder&dosubmit=1&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>';myform.submit();"/>
+    
 		<?php if($category['content_ishtml']) {?>
-		<input type="button" class="button" value="<?php echo L('createhtml');?>" onclick="myform.action='?m=content&c=create_html&a=batch_show&dosubmit=1&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>';myform.submit();"/>
+		<input type="button" class="button" value="<?php echo L('createhtml');?>" onclick="myform.action='?m=content&c=create_html&a=batch_show&dosubmit=1&modelid=<?php echo $modelid;?>&steps=<?php echo $steps;?>';myform.submit();"/>
 		<?php }
 		if($status!=99) {?>
-		<input type="button" class="button" value="<?php echo L('passed_checked');?>" onclick="myform.action='?m=content&c=content&a=pass&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>';myform.submit();"/>
+		<input type="button" class="button" value="<?php echo L('passed_checked');?>" onclick="myform.action='?m=content&c=content&a=pass2&modelid=<?php echo $modelid;?>&steps=<?php echo $steps;?>';myform.submit();"/>
 		<?php }?>
-		<input type="button" class="button" value="<?php echo L('delete');?>" onclick="myform.action='?m=content&c=content&a=delete&dosubmit=1&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>';return confirm_delete()"/>
+		<input type="button" class="button" value="<?php echo L('delete');?>" onclick="myform.action='?m=content&c=content&a=delete2&dosubmit=1&modelid=<?php echo $modelid;?>&steps=<?php echo $steps;?>';return confirm_delete()"/>
 		<?php if(!isset($_GET['reject'])) { ?>
 		<input type="button" class="button" value="<?php echo L('push');?>" onclick="push();"/>
 		<?php if($workflow_menu) { ?><input type="button" class="button" value="<?php echo L('reject');?>" onclick="reject_check()"/>
@@ -221,7 +212,7 @@ include $this->admin_tpl('header','admin');?>
 		</div>
 		<?php }}?>
 		<input type="button" class="button" value="类别" onclick="type_push();"/>
-		<input type="button" class="button" value="<?php echo L('remove');?>" onclick="myform.action='?m=content&c=content&a=remove&catid=<?php echo $catid;?>';myform.submit();"/>
+		<input type="button" class="button" value="<?php echo L('remove');?>" onclick="myform.action='?m=content&c=content&a=remove&modelid=<?php echo $modelid;?>';myform.submit();"/>
 		<?php echo runhook('admin_content_init')?>
 	</div>
     <div id="pages"><?php echo $pages;?></div>
@@ -268,6 +259,7 @@ function type_push()
 	window.top.art.dialog({title:'类别：',id:'type_push',iframe:'?m=content&c=type&a=type_list&catid=<?php echo $catid?>&modelid=<?php echo $modelid?>&id='+id,width:'800',height:'500'}, function(){var d = window.top.art.dialog({id:'type_push'}).data.iframe;// 使用内置接口获取iframe对象
 	var form = d.document.getElementById('dosubmit');form.click();return false;}, function(){window.top.art.dialog({id:'type_push'}).close()});
 }
+
 function confirm_delete(){
 	if(confirm('<?php echo L('confirm_delete', array('message' => L('selected')));?>')) $('#myform').submit();
 }
@@ -287,7 +279,7 @@ function reject_check(type) {
 			alert('<?php echo L('you_do_not_check');?>');
 			return false;
 		}
-		document.getElementById('myform').action='?m=content&c=content&a=pass&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>&reject=1';
+		document.getElementById('myform').action='?m=content&c=content&a=pass2&catid=<?php echo $catid;?>&steps=<?php echo $steps;?>&reject=1&modelid=<?php echo $modelid; ?>';
 		document.getElementById('myform').submit();
 	} else {
 		$('#reject_content').css('display','');
@@ -305,22 +297,20 @@ setInterval("refersh_window()", 3000);
 function type_sort(e)
 {
 	$("input[name='type_name']").val($(e).attr('alt'));
-	if($(e).attr('alt') == 'wirtes'){
-		
-		$("input[name='keyword']").val($.trim($(e).html()));
-		$("select[name='searchtype']").val('4');
-
-		//return;
-	}
 	var type = $("input[name='type_sort']").val();
 		type = type == 1 ? 0 :1;
 	
-	if($(e).attr('alt') == 'views'){
-		type = 0;
-	}
-	$("input[name='type_sort']").val(type);	
+	if($(e).attr('alt') == 'wirtes'){
+		
+		$("input[name='keyword']").val($.trim($(e).html()));
+		//return;
+	}		
+	$("input[name='type_sort']").val(type);
 	$('#form1').submit();
 	// window.location.href = "http://www.baidu.com";type_sort
+}
+function open_list(obj) {
+	window.top.$("#current_pos_attr").html($(obj).html());
 }
 
 function dblclickInfo($this,$id,$catid,$remark){
@@ -362,23 +352,16 @@ function updateInfo($this,$remark){
 			alert('修改'+$remark+'失败!');
 		}else{
 			var searchStyle =   $('#searchid').attr('style');
-
-			window.location.href = window.location.href;
-			/*
+			
 			if(typeof searchStyle != 'undefined' && searchStyle == 'display:'){
-
-				window.location.href = '?m=content&c=content&a=init&catid=<?php echo $_GET['catid'];?>&steps=<?php echo $_GET['steps'];?>&search=1&type_sort=<?php echo $_GET['type_sort'];?>&type_name=<?php echo $_GET['type_name'];?>&pc_hash=<?echo $_GET['pc_hash'];?>&start_time=<?php echo $_GET['start_time'];?>&end_time=<?php echo $_GET['end_time'];?>&posids=<?php echo $_GET['posids'];?>&searchtype=<?php echo $_GET['searchtype'];?>&keyword=<?php echo $_GET['keyword'];?>&typeid=<?php echo $_GET['typeid'];?>&search=搜索&page=<?php echo $_GET['page'];?>';
+				window.location.href = '?m=content&c=content&a=init2&modelid=<?php echo $_GET['modelid'];?>&steps=<?php echo $_GET['steps'];?>&search=1&type_sort=<?php echo $_GET['type_sort'];?>&type_name=<?php echo $_GET['type_name'];?>&pc_hash=<?php echo $_GET['pc_hash'];?>&start_time=<?php echo $_GET['start_time'];?>&end_time=<?php echo $_GET['end_time'];?>&posids=<?php echo $_GET['posids'];?>&searchtype=<?php echo $_GET['searchtype'];?>&keyword=<?echo $_GET['keyword'];?>&typeid=<?php echo $_GET['typeid'];?>&page=<?php echo $_GET['page'];?>';
 			}else{
-
-				window.location.href = '?m=content&c=content&a=init&menuid=<?php echo $_GET['menuid'];?>&catid=<?php echo $_GET['catid'];?>&pc_hash=<?php echo $_GET['pc_hash'];?>&page=<?php echo $_GET['page'];?>';
-			}*/
+				window.location.href = '?m=content&c=content&a=init2&modelid=<?php echo $_GET['modelid'];?>&pc_hash=<?php echo $_GET['pc_hash'];?>&page=<?php echo $_GET['page'];?>';
+			}
 		}
 	});
 }
-function getHitsOrder(){
 
-
-}
 //-->
 </script>
 </body>

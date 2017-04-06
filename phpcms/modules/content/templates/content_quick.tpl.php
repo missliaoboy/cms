@@ -23,7 +23,12 @@ include $this->admin_tpl('header','admin');?>
 <!--
 	if(window.top.$("#current_pos").data('clicknum')==1 || window.top.$("#current_pos").data('clicknum')==null) {
 	parent.document.getElementById('display_center_id').style.display='';
-	parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
+	var siteid = <?php echo $this->siteid;?>;
+	if(siteid == 1){
+		parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys2&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
+	} else {
+		parent.document.getElementById('center_frame').src = '?m=content&c=content&a=public_categorys&type=add&menuid=<?php echo $_GET['menuid'];?>&pc_hash=<?php echo $_SESSION['pc_hash'];?>';
+	}
 	window.top.$("#current_pos").data('clicknum',0);
 }
 $(document).ready(function(){

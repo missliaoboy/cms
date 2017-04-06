@@ -38,41 +38,33 @@
 	var isuccess 	= 0; //成功
 	var ierror 		= 0; //失败
 	var j = 0;
-	<?php 	foreach ($new_arr as $key => $value) {	if(empty($value))continue; ?>
-		ids = [];
-		ids.typeid 	= "<?php echo $value['typeid']; ?>";
-		ids.time 	= "<?php echo $time; ?>";
-		ids.key 	= "<?php echo $value['key']; ?>";
-		ids2[<?php echo $key; ?>] = ids;
+	<?php 	foreach ($deam as $key => $value) {	if(empty($value))continue; ?>
+		ids2.push("<?php echo $value; ?>");
 		++j;
 	<?php	} ?>
 	
-	function get_html_set(data)
+	function get_html_set()
 	{
 		if(ids2[0] != undefined ){
 			var new_arr 	= ids2[0];
-			var e_arr2	= new Array();
-			if( !new_arr ){
-				return false;
-			}
 			++tongji;
 			$.ajax({
-				url:"/index.php?m=content&c=with_set&a=ctwh_type_with",
+				url:"/index.php?m=content&c=cachestype&a=type_with",
 				type:'post',
 				// async 	: false,
-				data:{typeid:new_arr.typeid,time:new_arr.time,key:new_arr.key},
+				data:{typeid:new_arr},
 				dataType:'json',
 				success:function(e)
 				{
 					++isuccess;
-					data.shift();
-					var content = '';
+					ids2.shift();
 					if(e.title != ''){
 						content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
 					}
 					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
 					set_html();
-					get_html_set(data);
+					console.log(e.idall);
+					get_html_child_set(e.idall);
 
 				},
 			    error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -80,13 +72,54 @@
 					++ierror;
 					$('#html_set').prepend("<span style='color:green;font-weight: bold;'>生成失败<span></span></span>   序号" + tongji + "<br/>");
 					set_html();
-					get_html_set(data);
+					get_html_set();
 			    }
 			});
 		} else {
 			$('#html_set').prepend("<span>生成完成<span></span></span><br/>");
 		}
 	}
+
+	function get_html_child_set(data2)
+	{
+		console.log(data2);
+		if(data2[0] != undefined ){
+			var new_arr 	= data2[0];
+			++tongji;
+			$.ajax({
+				url:"/index.php?m=content&c=cachestype&a=type_child_with",
+				type:'post',
+				data:{typeid:new_arr},
+				dataType:'json',
+				success:function(e)
+				{
+					++isuccess;
+					data2.shift();
+					if(e.title != ''){
+						content = "<a href='" + e.url + "' target='_blank'  style='color:red;font-weight: bold;'>" + e.title + "</a>"; 
+					}
+					$('#html_set').prepend("<span>生成成功:<span>"+content+"</span></span>     耗时：" + e.time + "秒   序号" + tongji + "<br/>");
+					set_html();
+					get_html_child_set(data2);
+
+				},
+			    error: function(XMLHttpRequest, textStatus, errorThrown) {
+			    	data2.shift();
+					++ierror;
+					$('#html_set').prepend("<span style='color:green;font-weight: bold;'>生成失败<span></span></span>   序号" + tongji + "<br/>");
+					set_html();
+					get_html_child_set(data2);
+			    }
+			});
+		} else {
+			if(ids2[0] != undefined ){
+				get_html_set();
+			} else {
+				$('#html_set').prepend("<span>生成完成<span></span></span><br/>");
+			}
+		}
+	}
+
 
 	function set_html()
 	{
