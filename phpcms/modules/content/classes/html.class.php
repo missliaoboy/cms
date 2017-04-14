@@ -42,6 +42,15 @@ class html {
 		$catid = $data['catid'];
 		$CATEGORYS = $this->categorys;
 		$CAT = $CATEGORYS[$catid];
+		if(empty($CAT)){
+			$new_categorys = getcache('category_content','commons');
+			if($new_categorys[$catid]){
+				$this->siteid = intval($new_categorys[$catid]);
+				$this->categorys = getcache('category_content_'.$this->siteid,'commons');
+				$CATEGORYS = $this->categorys;
+				$CAT = $CATEGORYS[$catid];
+			}
+		}
 		$CAT['setting'] = string2array($CAT['setting']);
 		define('STYLE',$CAT['setting']['template_list']);
 

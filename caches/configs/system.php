@@ -34,7 +34,7 @@ return array(
 'debug' => 0, //是否显示调试信息
 'admin_log' => 1, //是否记录后台操作日志
 'errorlog' => 1, //1、保存错误日志到 cache/error_log.php | 0、在页面直接显示
-'gzip' => 1, //是否Gzip压缩后输出
+'gzip' => 0, //是否Gzip压缩后输出
 'auth_key' => 'tEgaMIuoNRy0nnr7rLIa', //密钥
 'lang' => 'zh-cn',  //网站语言包
 'lock_ex' => '1',  //写入缓存时是否建立文件互斥锁定（如果使用nfs建议关闭）

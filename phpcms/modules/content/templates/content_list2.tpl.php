@@ -118,7 +118,7 @@ if(window.top.$("#current_pos").data('clicknum')==1 || window.top.$("#current_po
 				}
 			?>
 		</td>
-		<td align='center' ><a target="right" href="?m=content&c=content&a=init&catid=<?php echo $r['catid']; ?>&type=add&menuid=<?php echo $_GET['menuid'];?>" onclick="open_list(this)"><?php echo $this->categorys[$r['catid']]['catname'];?></td>
+		<td align='center' ><a target="right" href="?m=content&c=content&a=init&catid=<?php echo $r['catid']; ?>&type=add&menuid=<?php echo $_GET['menuid'];?>" onclick="open_list(this)"><?php echo $this->categorys[$r['catid']]['catname'];?></a></td>
 		<td ondblclick="dblclickInfo(this,'<?php echo $r['id'];?>','<?php echo $r['catid'];?>','title')">
 		<?php
 		if($status==99) {

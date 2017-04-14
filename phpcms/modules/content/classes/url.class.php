@@ -25,6 +25,14 @@ class url{
 		$page = max($page,1);
 		$urls = $catdir = '';
 		$category = $this->categorys[$catid];
+		if(empty($category)){
+			$new_categorys = getcache('category_content','commons');
+			if($new_categorys[$catid]){
+				$this->siteid = intval($new_categorys[$catid]);
+				$this->categorys = getcache('category_content_'.$this->siteid,'commons');
+				$category = $this->categorys[$catid];
+			}
+		}
 		$setting = string2array($category['setting']);
 		$content_ishtml = $setting['content_ishtml'];
 		//当内容为转换或升级时

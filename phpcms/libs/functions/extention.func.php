@@ -96,4 +96,3 @@ function pages_type_all_list($num, $curr_page, $perpage = 20, $urlrule = '', $ar
     return $multipage;
 }
 ?>
-?>
