@@ -7345,6 +7345,7 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                 } else {
                     var p = me.document.createElement('p');
                     while (child) {
+                        var new_child = child;
                         while (child && (child.nodeType == 3 || child.nodeType == 1 && dtd.p[child.tagName] && !dtd.$cdata[child.tagName])) {
                             tmpNode = child.nextSibling;
                             p.appendChild(child);
@@ -7355,7 +7356,13 @@ var fillCharReg = new RegExp(domUtils.fillChar, 'g');
                                 me.body.appendChild(p);
                                 break;
                             } else {
-                                child.parentNode.insertBefore(p, child);
+                                if(new_child.textContent == '[page]'){
+                                    child.parentNode.insertBefore(me.document.createTextNode(' [page] '), child);
+                                } else {
+                                    child.parentNode.insertBefore(p, child);
+                                }
+                                //child.parentNode.insertBefore(me.document.createTextNode(' [page] '), child);
+                                // n.parentNode.insertBefore(UE.uNode.createText(' [page] '),n);
                                 p = me.document.createElement('p');
                             }
                         }
@@ -13856,17 +13863,16 @@ UE.plugins['pagebreak'] = function () {
     me.addInputRule(function(root){
         root.traversal(function(node){
             if(node.type == 'text' && node.data == me.options.pageBreakTag){
-                var hr = UE.uNode.createElement('<i>[page]<i>');
-                node.parentNode.insertBefore(hr,node);
-                node.parentNode.removeChild(node)
+                // var hr = UE.uNode.createElement('<p>[page]</p>');
+                node.parentNode.insertBefore(UE.uNode.createText(' [page] '),node);
+                node.parentNode.removeChild(node);
             }
         })
     });
     me.addOutputRule(function(node){
         utils.each(node.getNodesByTagName('hr'),function(n){
             // if(n.getAttr('class') == 'pagebreak'){
-                var txt = UE.uNode.createElement('<i>[page]<i>');
-                n.parentNode.insertBefore(txt,n);
+                n.parentNode.insertBefore(UE.uNode.createText(' [page] '),n);
                 n.parentNode.removeChild(n);
             // }
         })
@@ -22522,7 +22528,7 @@ UE.plugins['basestyle'] = function(){
      */
     var basestyles = {
             'bold':['strong','b'],
-            'italic':['em','i'],
+            // 'italic':['em','i'],
             'subscript':['sub'],
             'superscript':['sup']
         },
@@ -22542,8 +22548,8 @@ UE.plugins['basestyle'] = function(){
                 case 'b':
                     node.tagName = 'strong';
                     break;
-                case 'i':
-                    node.tagName = 'em';
+                // case 'i':
+                //     node.tagName = 'em';
             }
         });
     });
