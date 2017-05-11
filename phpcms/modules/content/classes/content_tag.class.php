@@ -63,7 +63,7 @@ class content_tag {
 		if(isset($data['where'])) {
 			$sql = $data['where'];
 		} else {
-			$thumb = intval($data['thumb']) ? " AND thumb_type = 1 " : '';
+			$thumb = intval($data['thumb']) ? " AND thumb != '' " : '';
 			if($this->category[$catid]['child']) {
 				$catids_str = $this->category[$catid]['arrchildid'];
 				$pos = strpos($catids_str,',')+1;
@@ -167,7 +167,7 @@ class content_tag {
 			} 
 			$catid 	= trim($catid,',');				
 		}
-		$thumb = intval($data['thumb']) ? " AND n.thumb_type = 1 " : '';
+		$thumb = intval($data['thumb']) ? " AND n.thumb != '' " : '';
 		$arr 	= explode(',', $catid);
 		$model 	= getcache('model','commons');
 		$tablename 	= $model[$category[$arr['0']]['modelid']]['tablename'];
@@ -229,7 +229,7 @@ class content_tag {
 		}  elseif($catid && !$this->category[$catid]['child']) {
 				$sql = "`catid` = '$catid' AND ";
 		}
-		if($thumb) $sql .= "`thumb_type` = '1' AND ";
+		if($thumb) $sql .= "`thumb` != '' AND ";
 		if(isset($data['where'])) $sql .= $data['where'].' AND ';
 		if(isset($data['expiration']) && $data['expiration']==1) $sql .= '(`expiration` >= \''.SYS_TIME.'\' OR `expiration` = \'0\' ) AND ';
 		$sql .= "`posid` = '$posid' AND `siteid` = '".$siteid."'";

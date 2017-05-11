@@ -57,11 +57,11 @@ class create_html extends admin {
 				} elseif($type == 'date') {
 					if($fromdate) {
 						$fromtime = strtotime($fromdate.' 00:00:00');
-						$where .= " AND `inputtime`>=$fromtime ";
+						$where .= " AND `updatetime`>=$fromtime ";
 					}
 					if($todate) {
 						$totime = strtotime($todate.' 23:59:59');
-						$where .= " AND `inputtime`<=$totime ";
+						$where .= " AND `updatetime`<=$totime ";
 					}
 				} elseif($type == 'id') {
 					$fromid = intval($fromid);
@@ -254,11 +254,11 @@ class create_html extends admin {
 				} elseif($type == 'date') {
 					if($fromdate) {
 						$fromtime = strtotime($fromdate.' 00:00:00');
-						$where .= " AND `inputtime`>=$fromtime ";
+						$where .= " AND `updatetime`>=$fromtime ";
 					}
 					if($todate) {
 						$totime = strtotime($todate.' 23:59:59');
-						$where .= " AND `inputtime`<=$totime ";
+						$where .= " AND `updatetime`<=$totime ";
 					}
 				} elseif($type == 'id') {
 					$fromid = intval($fromid);
